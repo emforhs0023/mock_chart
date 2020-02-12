@@ -1,0 +1,215 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="/css/jquery-ui.css">
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/js/jquery.dataTables.js"></script>
+	<script src="/js/jquery-ui.js"></script>
+</head>
+<body>
+	<script>
+		var active_on = "<button id = 'on_btn'>on</button>"
+		var active_off = "<button id = 'off_btn'>off</button>"
+
+		var pdf_Y = "<p style='font-weight:700'>Y</p>"
+		var pdf_N = "<input type='button' value='등록하기' id='sign_up'>"
+		$(function(){
+			$('#file_save').submit(function(){
+				var file_value = $("#file").val();
+				if(md_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					var check_submit=confirm('등록 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+			var id = "{{user_id}}"
+
+			 $.ajax({
+		        url:"/solve/tableInfo",
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	var TableList = data
+
+		        	for(var i = 0; i<TableList.length; i++){
+        				var row = TableList[i]
+
+        				if(row["reference_pdf"] == "" || row["reference_pdf"] == undefined){
+        					row["pdfStr"] = pdf_N;
+        				}
+        				if(row["reference_pdf"]){
+        					row["pdfStr"] = pdf_Y;
+        				}
+        				if(row["chart_open"] == 0){
+        					row["ActiveStr"] = active_off;
+        				}
+        				if(row["chart_open"] == 1){
+        					row["ActiveStr"] = active_on;
+        				}
+        			}
+		        	table = $("#proTable").DataTable({
+				        "destroy":true,
+				        "ordering":false,
+				        "searching": false,
+				        "info": false,
+				        "scrollY": "598px",
+				        "scrollCollapse": true,
+				        "bLengthChange": false,
+				        "data": TableList,
+				        "paging": false,
+				        "columns":[
+					        {"data":"chart_seq"},
+					        {"data":"chart_name"},
+					        {"data":"chart_date"},
+					        {"data":"chart_dep"},
+					        {"data":"chart_title"},
+					        {"data":"chart_operation"},
+					        {"data":"pdfStr"},
+					        {"data":"ActiveStr"},
+					        {"defaultContent": "<button id = 'view_btn'>보기</button>"},
+					    ]
+				    });
+	        	}
+        	})
+			 // off 버튼 클릭시 on 전환
+			$("#proTable").on("click","#off_btn",function(){
+				var data = table.row($(this).parents("tr")).data();
+				var title = data.chart_title;
+				var check_submit = confirm('등록 하시겠습니까?');
+
+				if(check_submit){
+					$.ajax({
+					    url:"/solve/activeOff?title=" + title,
+					    contentType:"application/json",
+					    method:"get",
+					    success:function(data){
+					    	alert("등록 되었습니다.")
+			        		location.href = "/solve/pro"
+					    }
+					}) 
+				} else {
+					return check_submit;
+				}
+				   
+			})
+			// on 버튼 클릭시 off 전환
+			$("#proTable").on("click","#on_btn",function(){
+				var data = table.row($(this).parents("tr")).data();
+				var title = data.chart_title
+				var check_submit = confirm('등록을 취소 하시겠습니까?');
+
+				if(check_submit){
+					$.ajax({
+					    url:"/solve/activeOn?title=" + title,
+					    contentType:"application/json",
+					    method:"get",
+					    success:function(data){
+					    	alert("취소 되었습니다.")
+			        		location.href = "/solve/pro"
+					    }
+					}) 
+				} else {
+					return check_submit;
+				}
+				   
+			})
+			// 테이블 클릭시 데이터 넘길수 있도록 개발
+			$("#proTable").on("click","#view_btn",function(){
+				var data = table.row($(this).parents("tr")).data();
+				var chart_title = data.chart_title
+				var row_id = data.chart_name;
+				var hidden_value = $("#hidden").val(row_id)
+				var value = $("#hidden").val()
+
+				$.ajax({
+			        url:"/solve/checkInfo?chart_title=" + chart_title,
+			        contentType:"application/json",
+			        method:"get",
+			        success:function(data){
+			        	console.log(data)
+			        	var pdf_name = data[0].reference_pdf
+			        	if(pdf_name){
+							$.ajax({
+						        url:"/chart/secondary?pdf_name=" + pdf_name +"&id="+id,
+						        contentType:"application/json",
+						        method:"get",
+						        success:function(data){
+						        	if(data == ""){
+						        		// console.log(chart_title)
+						        		location.href = "/solve/pro_solve?value="+ value+"&chart_title="+chart_title
+						        	}
+						        	 else {
+						        		alert("이미 제출한 문제 입니다.")
+						        	}
+						        }
+					        })
+			        	} else {
+							alert("아직 문제를 등록하지 않았습니다.")
+			        	}
+			        	
+			        }
+			    })
+			})
+			$("#proTable").on("click","#sign_up",function(){
+				var data = table.row($(this).parents("tr")).data();
+				$("#title_name").val(data.chart_title)
+				$("#basic_write").dialog({
+		            height:"auto",
+		            width:"600px",
+		            modal : true,
+		            buttons: {
+	                    "btn1" : {
+	                        text : "추가",
+	                        id : "add_button",
+	                        click:function(){
+
+	                        }
+	                    }
+	                }
+                })
+			})
+		 })
+	</script>
+	<div>
+		<input type="hidden" id="hidden" value="">
+		<table id="proTable" style="text-align: center;">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>이름</th>
+                    <th>생년월일</th>
+                    <th>진료과</th>
+                    <th>진단명</th>
+                    <th>수술 및 처치명</th>
+                    <th>둥록 여부</th>
+                    <th>오픈</th>
+                    <th>보기</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+	</div>
+
+	<div id='basic_write' title='파일 업로드' style='display: none;'>
+		 <form name="frm" method="POST" action="/solve/upload" enctype="multipart/form-data" id="file_save" style='float: left;'>
+			<table>
+				<tr>
+					<td class = "sub_title1">문제 등록: </td>
+					<td class = "sub_content">
+						<input type = "file" name = "file" id = "file" accept=".pdf"/>
+						<input type="hidden" id ="title_name" name="title_name"">
+					</td>
+					<td>
+						<input type="submit" value="저장" class="write_btn" >
+					</td>
+				</tr>
+			</table>
+		</form>
+    </div>
+</body>
+</html>

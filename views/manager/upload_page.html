@@ -1,0 +1,758 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<style>
+		*{
+			padding: 0px;
+			margin: 0px;
+		}
+	</style>
+</head>
+<body>
+	<script>
+		var chart_title = "{{chart_title}}"
+
+		$(function(){
+			$('#md_file_save').submit(function(){
+				var md_file_value = $("#md_file").val();
+				if(md_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					var check_submit=confirm('저장 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+			$('#ad_file_save').submit(function(){
+				var ad_file_value = $("#ad_file").val();
+				if(ad_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					var check_submit=confirm('저장 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+			$('#tr_file_save').submit(function(){
+				var tr_file_value = $("#tr_file").val();
+				if(tr_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					var check_submit=confirm('저장 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+
+			$('#dt_file_save').submit(function(){
+				var dt_file_value = $("#dt_file").val();
+				if(dt_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					var check_submit=confirm('저장 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+
+			$('#pb_file_save').submit(function(){
+				var pb_file_value = $("#pb_file").val();
+				if(pb_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					var check_submit=confirm('저장 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+
+			$('#rr_file_save').submit(function(){
+				var rr_file_value = $("#rr_file").val();
+				if(rr_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					var check_submit=confirm('저장 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+
+			$('#di_file_save').submit(function(){
+				var di_file_value = $("#di_file").val();
+				if(di_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					var check_submit=confirm('저장 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+
+			$('#nl_file_save').submit(function(){
+				var nl_file_value = $("#nl_file").val();
+				if(nl_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					var check_submit=confirm('저장 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+
+			$('#he_file_save').submit(function(){
+				var he_file_value = $("#he_file").val();
+				if(he_file_value == ""){
+					alert("파일을 선택 해주세요")
+					return false;
+
+				} else {
+					
+					var check_submit=confirm('저장 하시겠습니까?');
+
+					return check_submit;
+				}
+			})
+
+			$(".chart_title").val(chart_title)
+
+			$.ajax({
+				url:"/manager/base_info?chart_title=" + chart_title,
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	// console.log(data)
+		        	var chart_name = data[0].chart_name
+		        	console.log(chart_name)
+		        	var chart_date = data[0].chart_date
+		        	$("#patient_name").html(chart_name)
+		        	$("#date").html(chart_date)
+		        	$(".name").val(chart_name)
+		        	
+
+		        	var code = $("#md").val()
+		        	
+					$.ajax({
+						url:"/manager/saved_file?code=" + code+"&chart_name="+chart_name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	console.log(data)
+				        	if(data == ""){
+				        		
+				        	} else {
+				        		$("#chart_save_name").html(data[0].originalname)
+				        		$("#md_ori").val(data[0].chart_pdf)
+				        	}
+				        }
+			        })
+
+					var ad_code = $("#ad").val()
+					
+			        $.ajax({
+						url:"/manager/ad_saved_file?ad_code=" + ad_code+"&chart_name="+chart_name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	// console.log(data)
+				        	if(data == ""){
+				        		
+				        	} else {
+				        		$("#ad_chart_name").html(data[0].originalname)
+				        		$("#ad_ori").val(data[0].chart_pdf)
+				        	}
+				        }
+			        })
+
+			        var tr_code = $("#tr").val()
+					
+			        $.ajax({
+						url:"/manager/tr_saved_file?tr_code=" + tr_code+"&chart_name="+chart_name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	// console.log(data)
+				        	if(data == ""){
+				        		
+				        	} else {
+				        		$("#tr_chart_name").html(data[0].originalname)
+				        		$("#tr_ori").val(data[0].chart_pdf)
+				        	}
+				        }
+			        })
+
+			        var dt_code = $("#dt").val()
+
+			        $.ajax({
+						url:"/manager/dt_saved_file?dt_code=" + dt_code+"&chart_name="+chart_name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	// console.log(data)
+				        	if(data == ""){
+				        		
+				        	} else {
+				        		$("#dt_chart_name").html(data[0].originalname)
+				        		$("#dt_ori").val(data[0].chart_pdf)
+				        	}
+				        }
+			        })
+
+			        var pb_code = $("#pb").val()
+
+			        $.ajax({
+						url:"/manager/pb_saved_file?pb_code=" + pb_code+"&chart_name="+chart_name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	// console.log(data)
+				        	if(data == ""){
+				        		
+				        	} else {
+				        		$("#pb_chart_name").html(data[0].originalname)
+				        		$("#pb_ori").val(data[0].chart_pdf)
+				        	}
+				        }
+			        })
+
+			        var rr_code = $("#rr").val()
+
+			        $.ajax({
+						url:"/manager/rr_saved_file?rr_code=" + rr_code+"&chart_name="+chart_name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	// console.log(data)
+				        	if(data == ""){
+				        		
+				        	} else {
+				        		$("#rr_chart_name").html(data[0].originalname)
+				        		$("#rr_ori").val(data[0].chart_pdf)
+				        	}
+				        }
+			        })
+
+			        var di_code = $("#di").val()
+
+			        $.ajax({
+						url:"/manager/di_saved_file?di_code=" + di_code+"&chart_name="+chart_name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	// console.log(data)
+				        	if(data == ""){
+				        		
+				        	} else {
+				        		$("#di_chart_name").html(data[0].originalname)
+				        		$("#di_ori").val(data[0].chart_pdf)
+				        	}
+				        }
+			        })
+
+			        var nl_code = $("#nl").val()
+
+			        $.ajax({
+						url:"/manager/nl_saved_file?nl_code=" + nl_code+"&chart_name="+chart_name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	// console.log(data)
+				        	if(data == ""){
+				        		
+				        	} else {
+				        		$("#nl_chart_name").html(data[0].originalname)
+				        		$("#nl_ori").val(data[0].chart_pdf)
+				        	}
+				        }
+			        })
+
+			        var he_code = $("#he").val()
+
+			        $.ajax({
+						url:"/manager/he_saved_file?he_code=" + he_code+"&chart_name="+chart_name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	console.log(data)
+				        	if(data == ""){
+				        		
+				        	} else {
+				        		$("#he_chart_name").html(data[0].originalname)
+				        		$("#he_ori").val(data[0].chart_pdf)
+				        	}
+				        }
+			        })
+		        }
+			})
+		})
+
+		function md_del(){
+			var file_name = $("#md_ori").val()
+			var code = $("#md").val()
+			var check_submit=confirm('삭제 하시겠습니까?');
+
+			if(check_submit){
+				$.ajax({
+					url:"/manager/del?file_name=" + file_name+"&code="+code,
+			        contentType:"application/json",
+			        method:"delete",
+			        success:function(data){
+			        	alert("삭제 되었습니다.")
+			        	location.href = "/manager/manager_upload?chart_title="+ chart_title;
+			        }
+		        })
+			} else {
+				return check_submit;
+			}
+		}
+
+		function ad_del(){
+			var file_name = $("#ad_ori").val()
+			var code = $("#ad").val()
+			var check_submit=confirm('삭제 하시겠습니까?');
+
+			if(check_submit){
+				$.ajax({
+					url:"/manager/del?file_name=" + file_name+"&code="+code,
+			        contentType:"application/json",
+			        method:"delete",
+			        success:function(data){
+			        	alert("삭제 되었습니다.")
+			        	location.href = "/manager/manager_upload?chart_title="+ chart_title;
+			        }
+		        })
+			} else {
+				return check_submit;
+			}
+		}
+
+		function tr_del(){
+			var file_name = $("#tr_ori").val()
+			var code = $("#tr").val()
+			var check_submit=confirm('삭제 하시겠습니까?');
+
+			if(check_submit){
+				$.ajax({
+					url:"/manager/del?file_name=" + file_name+"&code="+code,
+			        contentType:"application/json",
+			        method:"delete",
+			        success:function(data){
+			        	alert("삭제 되었습니다.")
+			        	location.href = "/manager/manager_upload?chart_title="+ chart_title;
+			        }
+		        })
+			} else {
+				return check_submit;
+			}
+		}
+
+		function dt_del(){
+			var file_name = $("#dt_ori").val()
+			var code = $("#dt").val()
+			var check_submit=confirm('삭제 하시겠습니까?');
+
+			if(check_submit){
+				$.ajax({
+					url:"/manager/del?file_name=" + file_name+"&code="+code,
+			        contentType:"application/json",
+			        method:"delete",
+			        success:function(data){
+			        	alert("삭제 되었습니다.")
+			        	location.href = "/manager/manager_upload?chart_title="+ chart_title;
+			        }
+		        })
+			} else {
+				return check_submit;
+			}
+		}
+
+		function pb_del(){
+			var file_name = $("#pb_ori").val()
+			var code = $("#pb").val()
+			var check_submit=confirm('삭제 하시겠습니까?');
+
+			if(check_submit){
+				$.ajax({
+					url:"/manager/del?file_name=" + file_name+"&code="+code,
+			        contentType:"application/json",
+			        method:"delete",
+			        success:function(data){
+			        	alert("삭제 되었습니다.")
+			        	location.href = "/manager/manager_upload?chart_title="+ chart_title;
+			        }
+		        })
+			} else {
+				return check_submit;
+			}
+		}
+
+		function rr_del(){
+			var file_name = $("#rr_ori").val()
+			var code = $("#rr").val()
+			var check_submit=confirm('삭제 하시겠습니까?');
+
+			if(check_submit){
+				$.ajax({
+					url:"/manager/del?file_name=" + file_name+"&code="+code,
+			        contentType:"application/json",
+			        method:"delete",
+			        success:function(data){
+			        	alert("삭제 되었습니다.")
+			        	location.href = "/manager/manager_upload?chart_title="+ chart_title;
+			        }
+		        })
+			} else {
+				return check_submit;
+			}
+		}
+
+		function di_del(){
+			var file_name = $("#di_ori").val()
+			var code = $("#di").val()
+			var check_submit=confirm('삭제 하시겠습니까?');
+
+			if(check_submit){
+				$.ajax({
+					url:"/manager/del?file_name=" + file_name+"&code="+code,
+			        contentType:"application/json",
+			        method:"delete",
+			        success:function(data){
+			        	alert("삭제 되었습니다.")
+			        	location.href = "/manager/manager_upload?chart_title="+ chart_title;
+			        }
+		        })
+			} else {
+				return check_submit;
+			}
+		}
+
+		function nl_del(){
+			var file_name = $("#nl_ori").val()
+			var code = $("#nl").val()
+			var check_submit=confirm('삭제 하시겠습니까?');
+
+			if(check_submit){
+				$.ajax({
+					url:"/manager/del?file_name=" + file_name+"&code="+code,
+			        contentType:"application/json",
+			        method:"delete",
+			        success:function(data){
+			        	alert("삭제 되었습니다.")
+			        	location.href = "/manager/manager_upload?chart_title="+ chart_title;
+			        }
+		        })
+			} else {
+				return check_submit;
+			}
+		}
+
+		function he_del(){
+			var file_name = $("#he_ori").val()
+			var code = $("#he").val()
+			var check_submit=confirm('삭제 하시겠습니까?');
+
+			if(check_submit){
+				$.ajax({
+					url:"/manager/del?file_name=" + file_name+"&code="+code,
+			        contentType:"application/json",
+			        method:"delete",
+			        success:function(data){
+			        	alert("삭제 되었습니다.")
+			        	location.href = "/manager/manager_upload?chart_title="+ chart_title;
+			        }
+		        })
+			} else {
+				return check_submit;
+			}
+		}
+
+	</script>
+	<div>
+		
+	</div>
+	<div>
+		<div style='height: 123px; width: 23%;  margin: 0 auto;'>
+			<div>
+				<p style='float: left;'>환자 이름: </p>
+				<p id='patient_name' style='float: left;'></p>
+			</div>
+
+			<div style='margin-left: 25px; float: left;'>
+				<p style='float: left;'>생년월일: </p>
+				<p id='date' style='float: left;'></p>
+			</div>
+		</div>
+		<div style='width: 100%'>
+			<div>
+				<div style='width: 50%; float: left;'>
+					<form name="frm" method="POST" action="/manager/md" enctype="multipart/form-data" id="md_file_save" style='float: left;'>
+						<table>
+							<tr>
+								<td class = "sub_title1">입퇴원 요약: </td>
+								<td class = "sub_content">
+									<input type = "file" name = "md_file" id = "md_file" accept=".pdf"/>
+									<input type="hidden" id ="md" name="md" value="md">
+									<input type="hidden" class ="name" name="name" value=''>
+									<input type="hidden" class ="chart_title" name="chart_title" value=''>
+								</td>
+								<td>
+									<input type="submit" value="저장" class="write_btn" >
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+				<div style='float: left; width: 50%;'>
+					<p style='float: left;'>현재 저장된 파일명 :</p>
+					<p id='chart_save_name' style='margin-left: 10px; float: left;'></p>
+					<input type="hidden" id="md_ori">
+					<input type="button" value="삭제" class="write_btn" onclick="md_del()">
+				</div>
+			</div>
+
+			<div style='clear: both;'>
+				<div style='width: 50%;     float: left;'>
+					<form name="frm" method="POST" action="/manager/ad" enctype="multipart/form-data" id="ad_file_save" style='float: left;'>
+						<table>
+							<tr>
+								<td class = "sub_title1">입원초진 기록: </td>
+								<td class = "sub_content">
+									<input type = "file" name = "ad_file" id = "ad_file" accept=".pdf"/>
+									<input type="hidden" id ="ad" name="ad" value="ad">
+									<input type="hidden" class ="name" name="name" value=''>
+									<input type="hidden" class ="chart_title" name="chart_title" value=''>
+								</td>
+								<td>
+									<input type="submit" value="저장" class="write_btn" >
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+
+				<div style='float: left; width: 50%;'>
+					<p style='float: left;'>현재 저장된 파일명 :</p>
+					<p id='ad_chart_name' style='margin-left: 10px; float: left;'></p>
+					<input type="hidden" id="ad_ori">
+					<input type="button" value="삭제" class="write_btn" onclick="ad_del()">
+				</div>
+			</div>
+
+			<div style='clear: both;'>
+				<div style='width: 50%; float: left;'>
+					<form name="frm" method="POST" action="/manager/tr" enctype="multipart/form-data" id="tr_file_save" style='float: left;'>
+						<table>
+							<tr>
+								<td class = "sub_title1">경과기록: </td>
+								<td class = "sub_content">
+									<input type = "file" name = "tr_file" id = "tr_file" accept=".pdf"/>
+									<input type="hidden" id ="tr" name="tr" value="tr">
+									<input type="hidden" class ="name" name="name" value=''>
+									<input type="hidden" class ="chart_title" name="chart_title" value=''>
+								</td>
+								<td>
+									<input type="submit" value="저장" class="write_btn" >
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+
+				<div style='float: left; width: 50%;'>
+					<p style='float: left;'>현재 저장된 파일명 :</p>
+					<p id='tr_chart_name' style='margin-left: 10px; float: left;'></p>
+					<input type="hidden" id="tr_ori">
+					<input type="button" value="삭제" class="write_btn" onclick="tr_del()">
+				</div>
+			</div>
+			
+			<div style='clear: both;'>
+				<div style='width: 50%; float: left;'>
+					<form name="frm" method="POST" action="/manager/dt" enctype="multipart/form-data" id="dt_file_save" style='float: left;'>
+						<table>
+							<tr>
+								<td class = "sub_title1">진단검사 결과 보고서: </td>
+								<td class = "sub_content">
+									<input type = "file" name = "dt_file" id = "dt_file" accept=".pdf"/>
+									<input type="hidden" id ="dt" name="dt" value="dt">
+									<input type="hidden" class ="name" name="name" value=''>
+									<input type="hidden" class ="chart_title" name="chart_title" value=''>
+								</td>
+								<td>
+									<input type="submit" value="저장" class="write_btn" >
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+
+				<div style='float: left; width: 50%;'>
+					<p style='float: left;'>현재 저장된 파일명 :</p>
+					<p id='dt_chart_name' style='margin-left: 10px; float: left;'></p>
+					<input type="hidden" id="dt_ori">
+					<input type="button" value="삭제" class="write_btn" onclick="dt_del()">
+				</div>
+			</div>
+
+			<div style='clear: both;'>
+				<div style='width: 50%; float: left;'>
+					<form name="frm" method="POST" action="/manager/pb" enctype="multipart/form-data" id="pb_file_save" style='float: left;'>
+						<table>
+							<tr>
+								<td class = "sub_title1">진단검사특수결과지: </td>
+								<td class = "sub_content">
+									<input type = "file" name = "pb_file" id = "pb_file" accept=".pdf"/>
+									<input type="hidden" id ="pb" name="pb" value="pb">
+									<input type="hidden" class ="name" name="name" value=''>
+									<input type="hidden" class ="chart_title" name="chart_title" value=''>
+								</td>
+								<td>
+									<input type="submit" value="저장" class="write_btn" >
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+
+				<div style='float: left; width: 50%;'>
+					<p style='float: left;'>현재 저장된 파일명 :</p>
+					<p id='pb_chart_name' style='margin-left: 10px; float: left;'></p>
+					<input type="hidden" id="pb_ori">
+					<input type="button" value="삭제" class="write_btn" onclick="pb_del()">
+				</div>
+			</div>
+			
+			<div style='clear: both;'>
+				<div style='width: 50%; float: left;'>
+					<form name="frm" method="POST" action="/manager/rr" enctype="multipart/form-data" id="rr_file_save" style='float: left;'>
+						<table>
+							<tr>
+								<td class = "sub_title1">판독소견서: </td>
+								<td class = "sub_content">
+									<input type = "file" name = "rr_file" id = "rr_file" accept=".pdf"/>
+									<input type="hidden" id ="rr" name="rr" value="rr">
+									<input type="hidden" class ="name" name="name" value=''>
+									<input type="hidden" class ="chart_title" name="chart_title" value=''>
+								</td>
+								<td>
+									<input type="submit" value="저장" class="write_btn" >
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+
+				<div style='float: left; width: 50%;'>
+					<p style='float: left;'>현재 저장된 파일명 :</p>
+					<p id='rr_chart_name' style='margin-left: 10px; float: left;'></p>
+					<input type="hidden" id="rr_ori">
+					<input type="button" value="삭제" class="write_btn" onclick="rr_del()">
+				</div>
+			</div>
+
+			<div style='clear: both;'>
+				<div style='width: 50%; float: left;'>
+					<form name="frm" method="POST" action="/manager/di" enctype="multipart/form-data" id="di_file_save" style='float: left;'>
+						<table>
+							<tr>
+								<td class = "sub_title1">의사지시기록: </td>
+								<td class = "sub_content">
+									<input type = "file" name = "di_file" id = "di_file" accept=".pdf"/>
+									<input type="hidden" id ="di" name="di" value="di">
+									<input type="hidden" class ="name" name="name" value=''>
+									<input type="hidden" class ="chart_title" name="chart_title" value=''>
+								</td>
+								<td>
+									<input type="submit" value="저장" class="write_btn" >
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+
+				<div style='float: left; width: 50%;'>
+					<p style='float: left;'>현재 저장된 파일명 :</p>
+					<p id='di_chart_name' style='margin-left: 10px; float: left;'></p>
+					<input type="hidden" id="di_ori">
+					<input type="button" value="삭제" class="write_btn" onclick="di_del()">
+				</div>
+			</div>
+
+			<div style='clear: both;'>
+				<div style='width: 50%; float: left;'>
+					<form name="frm" method="POST" action="/manager/nl" enctype="multipart/form-data" id="nl_file_save" style='float: left;'>
+						<table>
+							<tr>
+								<td class = "sub_title1">간호정보조사기록: </td>
+								<td class = "sub_content">
+									<input type = "file" name = "nl_file" id = "nl_file" accept=".pdf"/>
+									<input type="hidden" id ="nl" name="nl" value="nl">
+									<input type="hidden" class ="name" name="name" value=''>
+									<input type="hidden" class ="chart_title" name="chart_title" value=''>
+								</td>
+								<td>
+									<input type="submit" value="저장" class="write_btn" >
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+
+				<div style='float: left; width: 50%;'>
+					<p style='float: left;'>현재 저장된 파일명 :</p>
+					<p id='nl_chart_name' style='margin-left: 10px; float: left;'></p>
+					<input type="hidden" id="nl_ori">
+					<input type="button" value="삭제" class="write_btn" onclick="nl_del()">
+				</div>
+			</div>
+
+			<div style='clear: both;'>
+				<div style='width: 50%; float: left;'>
+					<form name="frm" method="POST" action="/manager/he" enctype="multipart/form-data" id="he_file_save" style='float: left;'>
+						<table>
+							<tr>
+								<td class = "sub_title1">퇴원간호기록 : </td>
+								<td class = "sub_content">
+									<input type = "file" name = "he_file" id = "he_file" accept=".pdf"/>
+									<input type="hidden" id ="he" name="he" value="he">
+									<input type="hidden" class ="name" name="name" value=''>
+									<input type="hidden" class ="chart_title" name="chart_title" value=''>
+								</td>
+								<td>
+									<input type="submit" value="저장" class="write_btn" >
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+
+				<div style='float: left; width: 50%;'>
+					<p style='float: left;'>현재 저장된 파일명 :</p>
+					<p id='he_chart_name' style='margin-left: 10px; float: left;'></p>
+					<input type="hidden" id="he_ori">
+					<input type="button" value="삭제" class="write_btn" onclick="he_del()">
+					
+				</div>
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>

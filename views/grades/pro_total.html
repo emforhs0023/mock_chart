@@ -1,0 +1,132 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/js/jquery.dataTables.js"></script>
+</head>
+<body>
+	<script>
+		var id = "{{user_id}}"
+		var auth = "{{auth}}"
+		var title = "{{ title }}";
+		var name = "{{ name }}";
+
+		var active_on = "<button id = 'on_btn'>등록</button>";
+		var active_off = "<button id = 'off_btn' style='color:tomato'>미등록</button>";
+		// 성적 테이블
+		$(function(){
+			$.ajax({
+		        url:"/grades/chartNameInfo?title=" + title,
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	console.log(data)
+		        	var TableList = data;
+
+		        	for(var i = 0; i<TableList.length; i++){
+                        var row = TableList[i]
+                        var question = row.question;
+                        var point = row.point;
+                        var allPoint = point + "/" + question 
+                        if(row["point"]){
+                            row["totalPoint"] = allPoint;    
+                        }
+                        if(row["open"] == 0){
+        					row["ActiveStr"] = active_off;
+        				}
+        				if(row["open"] == 1){
+        					row["ActiveStr"] = active_on;
+        				}
+                    }
+
+		        	table = $("#pro_confirm").DataTable({
+                        "destroy":true,
+                        "ordering":false,
+                        "searching": false,
+                        "info": false,
+                        "scrollY": "598px",
+                        "scrollCollapse": true,
+                        "bLengthChange": false,
+                        "data": TableList,
+                        "paging": false,
+                        "columns":[
+                            {"data":"student_seq"},
+                            {"data":"student_name"},
+                            {"data":"student_num"},
+                            {"data":"title"},
+                            {"data":"totalPoint"},
+                            {"data":"ActiveStr"},
+                            {"defaultContent": "<button id = 'view_btn'>보기</button>"},
+                        ]
+                    });
+				}
+	        })
+
+	        $("#pro_confirm").on("click","#off_btn",function(){
+				var data = table.row($(this).parents("tr")).data();
+				var id = data.student_id;
+				var title = data.title;
+				var pdf_file = data.pdf_file;
+				var result = confirm("문제를 등록 하시겠습니까?")
+// ?confirm_title="+ confirm_title+"&value="+value;
+				if(result){
+					$.ajax({
+					    url:"/grades/activeOff?id=" + id+"&pdf_file="+pdf_file, 
+					    contentType:"application/json",
+					    method:"get",
+					    success:function(data){
+					    	if(data == true){
+		                		confirm("등록이 완료 되었습니다.")
+		            			location.href = "/grades/pro_total?confirm_title="+ title+"&value="+name; 
+		                	}
+						}
+					}) 
+		    	}
+			})
+			// on 버튼 클릭시 off 전환
+			$("#pro_confirm").on("click","#on_btn",function(){
+				var data = table.row($(this).parents("tr")).data();
+				var id = data.student_id
+				var title = data.title
+				var pdf_file = data.pdf_file;
+				var result = confirm("문제를 취소 하시겠습니까?")
+
+				if(result){
+					$.ajax({
+					    url:"/grades/activeOn?id=" + id+"&pdf_file="+pdf_file, 
+					    contentType:"application/json",
+					    method:"get",
+					    success:function(data){
+					    	if(data == true){
+		                		confirm("등록이 취소 되었습니다.")
+		            			location.href = "/grades/pro_total?confirm_title="+ title+"&value="+name; 
+		                	}
+					    }
+					}) 
+				}
+			})
+			$("#pro_confirm").on("click","#view_btn",function(){
+				var data = table.row($(this).parents("tr")).data();
+				var id = data.id;
+				var title = data.title;
+				location.href = "/grades/answer_view?title=" + title+"&id="+id;
+			})
+		})
+	</script>
+	<table id="pro_confirm" style="text-align: center;">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>이름</th>
+                <th>학번</th>
+                <th>진단명</th>
+                <th>점수</th>
+                <th>성적 승인</th>
+                <th>답안 확인</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</body>
+</html>

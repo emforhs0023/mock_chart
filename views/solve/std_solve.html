@@ -1,0 +1,321 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/static/js/scroll.js"></script>
+	<style>
+		*{
+			margin: 0px;
+			padding: 0px;
+		}
+		#menu{
+			list-style: none;
+		}
+		#menu{
+			width: 5%;
+		    float: left;
+		}
+		.tab-link{
+			border: 1px solid black;
+	    	margin-bottom: 10px;	
+		}
+		.write_btn{
+		    border: none;
+		    width: 100%;
+		    height: 54px;
+		    margin-top: 5px;
+		    cursor: pointer;
+		}
+		#floatMenu {
+			position: absolute;
+			height: auto;
+			top: 218px;
+			font-size: 20px;
+		   	z-index: 20;
+	        width: 185px;
+	        background-color: #bfbfbf;
+	        padding: 5px;
+		}
+		.selected{
+			color: tomato;
+		}
+	</style>
+</head>
+<body>
+	<script>
+		
+		var id = "{{user_id}}"
+		var auth = "{{auth}}"
+
+		$(function(){
+			widthSlider = $(window).width()-212
+			$("#floatMenu").css("left",widthSlider)
+			// 현재 페이지의 환자 이름 히든값 
+
+			var name = "{{ name }}";
+			var title = "{{title}}";
+
+			$("#title_hidden").val(title)
+
+			$.ajax({
+		        url:"/solve/useridInfo?id=" + id,
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	var student_name = data[0].student_name
+		        	var student_num = data[0].student_num
+		        	$("#student_id").html(student_num)
+		        	$("#student_name").html(student_name)
+		        }
+	        })
+			// console.log(name)
+			// 환자 이름을 이용하여 데이터 가져 오도록 개발
+			$.ajax({
+		        url:"/solve/chartNameInfo?name=" + name,
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	// console.log(data)
+		        	var reference_pdf = data[0].reference_pdf
+		        	// pdf 저장
+		        	$("#pdf_hidden").val(reference_pdf)
+		        	$("#pdf_question_hidden").val(reference_pdf)
+		        	// 현재 환자의 병명 list로 전환 
+		        	for(var i = 0; i<data.length; i++){
+		        		var code = data[i].code
+		        		var record_type = data[i].record_type 
+		        		$("#menu").append("<li id="+code+" class = tab-link>"+record_type+"</li>");
+		        	}
+		        	$("#right_menu").append("<div id='right_pdf'><iframe id='right_file' src='/problem/"+reference_pdf+"' width='90%' height='100%'></iframe></div>");
+		        	
+        			// $("#index_list").append("<input type='hidden' value='' id='list_hidden'>")
+			        
+		        	// pdf 코드를 이용하여 pdf관련 정보를 가져 올수 있도록 개발
+		        	$.ajax({
+				        url:"/solve/answerInfo?reference_pdf=" + reference_pdf,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	var reference_auth = data[0].question
+
+				        	$("#list_hidden").val(reference_auth)
+				        	for(var i=1; i<=reference_auth; i++){
+				        		i = Number(i)
+				        		$("#index_ul").append("<li>"+i+"</li>");
+					        	$("#answer_list").append(
+			        				"<label>"+
+			    						"<input type='checkbox' name= a"+i+" value='1' style='display: none;'> ①"+    				
+									"</label>"+    
+									"<label>"+
+										"<input type='checkbox' name= a"+i+" value='2' style='display: none;'> ②"+
+									"</label>"+    
+									"<label>"+
+										"<input type='checkbox' name= a"+i+" value='3' style='display: none;'> ③"+
+									"</label>"+    
+									"<label>"+
+										"<input type='checkbox' name= a"+i+" value='4' style='display: none;'> ④"+
+									"</label>"+
+									"<label>"+
+										"<input type='checkbox' name= a"+i+" value='5' style='display: none;'> ⑤"+
+			    					"</label>"+
+			    					"<br/>"
+								);	
+				        	}
+				        	$("input:checkbox").on('click', function() { 
+				    			if ( $(this).prop('checked') ) { 
+				    				$(this).parent().addClass("selected"); 
+				    			} else { 
+				    				$(this).parent().removeClass("selected"); 
+				    			}
+				    		});
+				        }
+			        })
+			        $("#floatMenu").append("<input type='button' value='답안 제출' class='write_btn' onclick='bb()'>");
+			        // list의 첫번째 행의 코드를 가져 올수 있도록 개발 
+			        var chart_id = $(".tab-link:first-child")[0].id
+			        // 차트의 이름과 해당 코드를 가지고 데이터를 가져 올수 있도록 개발
+			        $.ajax({
+				        url:"/solve/chartPdf?chart_id=" +chart_id+"&name="+name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	// console.log(data)
+				        	$("#sum_menu").append("<div id='left_pdf'><iframe id='left_file' src='/profile/"+data[0].chart_pdf+"' width='90%' height='100%'></iframe></div>");	
+				        }
+			        })
+				}
+        	})
+
+        	$("#menu").on("click","li",function(){
+	        	var chart_id = ($(this).attr("id"))
+	        	// console.log(chart_id)
+	        	$.ajax({
+			        url:"/solve/chartPdf?chart_id=" + chart_id+"&name="+name,
+			        contentType:"application/json",
+			        method:"get",
+			        success:function(data){
+			        	console.log(data)
+			        	$("#left_pdf").remove();
+			        	$("#sum_menu").append("<div id='left_pdf'><iframe id='left_file' src='/profile/"+data[0].chart_pdf+"' width='90%' height='100%'></iframe></div>");
+
+			        }
+		        })
+	        })
+		})
+
+		$( window ).resize(function() {
+	        // console.log(widthSlider)
+	        var a = $(window).width()
+	        var widthSlider = $(window).width()-197
+	        $("#floatMenu").css("left",widthSlider)
+	    });
+
+	  	function bb(){
+	    	var list = $("#list_hidden").val()
+
+	    	var blank = "";
+
+	    	for(var i=1; i<=list; i++){
+		    	if($("input:checkbox[name=a"+i+"]").is(":checked") !=  true){
+		    		alert(i+"번째 문항을 입력 하여주세요")
+		    		return false;
+		    	} else {
+				    
+				    	$("input[name=a"+i+"]:checked").each(function(){
+				    		test = $(this).val() + ",";
+				    		blank += test; 
+				    	})	
+				    	blank += "/"
+				    
+					last_text = blank.slice(0, blank.length-1)
+				    // console.log(last_text)
+				}
+			}
+			// console.log(last_text)
+	    	var answer_data = last_text;
+	  		var answer_split = answer_data.split('/');
+
+	  		var second_ins = [];
+	  		for(var i=0; i < answer_split.length; i++){
+				var comma = answer_split[i].split(',');
+				var last_blank = comma.filter(Boolean) 
+				// console.log(bs)
+				second_ins.push(last_blank)
+
+			}
+
+			var tertiary_ins = ""
+			for(var q = 0; q < second_ins.length; q++){
+				tertiary_ins += second_ins[q] + "/"
+				
+			}
+			fourth = tertiary_ins.slice(0, tertiary_ins.length-1)
+			// console.log(fourth)
+			
+			var pdf_name = $("#pdf_hidden").val()
+			// 문제 의 환지 이름
+			var title = $("#title_hidden").val()
+			
+			data_answer = {"fourth":fourth,"pdf_name":pdf_name, "title":title, "id":id}
+
+			var result = confirm("제출을 하시겠습니까?")
+			
+			if(result){
+				// 내가 푼 값
+				$.ajax({
+	                url:"/solve/sub_answer",
+	                contentType:"application/json",
+	                method:"post",
+	                data:JSON.stringify(data_answer),
+	                success:function(data){
+	                	console.log(data_answer)
+	                	$.ajax({
+			                url:"/solve/first_confirm",
+			                contentType:"application/json",
+			                method:"post",
+			                data:JSON.stringify(data_answer),
+			                success:function(data){
+			                	console.log(data)
+			                	first_arr = [];
+	                			two_arr = [];
+			                	var data_zero = data[0]
+			                	var data_one = data[1]
+			                	var first_data = data_zero[0].answer;
+			                	var two_data = data_one[0].answer;
+			                	var two_split = two_data.split('/');
+			                	var first_split = first_data.split('/');
+			                	first_arr.push(first_split)
+			                	two_arr.push(two_split)
+			                	var first_child = first_arr[0]
+			                	var two_child = two_arr[0]
+			                	console.log(first_child)
+			                	console.log(two_child)
+			                	
+							  	// var result_child = [];
+							  	var sum = 0;
+								first_child.forEach(function(index, i){
+
+									if(index == two_child[i]){
+										sum += 1;
+									}
+								})
+							  	
+							  	data_point = {"sum":sum,"pdf_name":pdf_name,"id":id}
+							  	console.log(data_point)
+							  	$.ajax({
+					                url:"/solve/point",
+					                contentType:"application/json",
+					                method:"post",
+					                data:JSON.stringify(data_point),
+					                success:function(data){
+					                	// console.log()
+					                	if(data == true){
+					                		confirm("제출이 완료 되었습니다.")
+					            			location.href = "/solve/std" 
+					                	}
+					                }
+				                })
+							} 	
+		                })
+		            } 
+				})
+			} else {
+				return;
+			}
+		}
+	</script>
+	<div style='width: 100%;'>
+		<div id='sum_menu' style="width: 50%; float: left;">
+			<ul id='menu'>
+			</ul>	
+		</div>
+		<div id='right_menu' style="width: 50%; float: left;">
+			
+		</div>
+	</div>
+
+	<div id="floatMenu">
+		<!-- pdf 저장 -->
+		<input type="hidden" value="" id="pdf_hidden">
+		<!-- <input type='button' value='저장1' class='write_btn' onclick='answer_save()'> -->
+		<div id='floatMenu_title' style='background-color: white; margin-bottom: 5px;'>
+			<p>학번:<span id='student_id'><span></p> 
+			<p>이름:<span id='student_name'><span></p>
+		</div>
+		<div id='list_menu'>
+				
+			<div id='index_list' style='float: left; text-align: center; margin-right: 5px;'>
+				<div>문항</div>
+				<input type='hidden' value='' id='list_hidden'>
+				<input type='hidden' value='' id='title_hidden'>
+				<ul id='index_ul' style='list-style: none;'>
+				</ul>
+			</div>
+			<div  id='answer_list' style='float: left; background-color: white; width: 140px; text-align: center;'>
+				<div>답안</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

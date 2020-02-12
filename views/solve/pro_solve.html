@@ -1,0 +1,347 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/static/js/scroll.js"></script>
+	<style>
+		*{
+			margin: 0px;
+			padding: 0px;
+		}
+		#menu{
+			list-style: none;
+		}
+		#menu{
+			width: 5%;
+		    float: left;
+		}
+		.tab-link{
+			border: 1px solid black;
+	    	margin-bottom: 10px;	
+		}
+		.write_btn{
+		    border: none;
+		    width: 100%;
+		    height: 54px;
+		    margin-top: 5px;
+		    cursor: pointer;
+		}
+		#floatMenu {
+			position: absolute;
+			height: auto;
+			top: 218px;
+			font-size: 20px;
+		   	z-index: 20;
+	        width: 185px;
+	        background-color: #bfbfbf;
+	        padding: 5px;
+		}
+		.selected{
+			color: tomato;
+		}
+	</style>
+</head>
+<body>
+	<script>
+		var id = "{{user_id}}"
+		var auth = "{{auth}}"
+
+		$(function(){
+			widthSlider = $(window).width()-212
+			$("#floatMenu").css("left",widthSlider)
+			// 현재 페이지의 환자 이름 히든값 
+
+			var name = "{{ name }}";
+			var title = "{{title}}";
+			$("#value_hidden").val(name)
+			$("#title_hidden").val(title)
+			// console.log(name)
+			// 환자 이름을 이용하여 데이터 가져 오도록 개발
+			$.ajax({
+		        url:"/solve/chartNameInfo?name=" + name,
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	
+		        	var reference_pdf = data[0].reference_pdf
+		        	// pdf 저장
+		        	$("#pdf_hidden").val(reference_pdf)
+		        	$("#pdf_question_hidden").val(reference_pdf)
+		        	
+		        	// 현재 환자의 병명 list로 전환 
+		        	for(var i = 0; i<data.length; i++){
+		        		var code = data[i].code
+		        		var record_type = data[i].record_type 
+		        		$("#menu").append("<li id="+code+" class = tab-link>"+record_type+"</li>");
+		        	}
+		        	$("#right_menu").append("<div id='right_pdf'><iframe id='right_file' src='/problem/"+reference_pdf+"' width='90%' height='100%'></iframe></div>");
+
+		        	$.ajax({
+				        url:"/solve/pdf_info?reference_pdf=" + reference_pdf+"&title="+title,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	var count = data[0].count
+				        	console.log(count)
+				        	if(count == 0){
+				        		$("#que_zone").append("<input type='button' value='저장' id='list_num_save' onclick='list_num_save()'>")
+				        	} else {
+				        		$("#que_zone").append("<input type='button' value='수정' id='list_num_up' onclick='list_num_up()'>")
+				        	}
+				        	// <input type='button' value='저장' id="list_num_save" onclick='list_num_save()'>
+				        }
+			        })
+        			// $("#index_list").append("<input type='hidden' value='' id='list_hidden'>")
+			        
+		        	// pdf 코드를 이용하여 pdf관련 정보를 가져 올수 있도록 개발
+		        	$.ajax({
+				        url:"/solve/answerInfo?reference_pdf=" + reference_pdf,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	var reference_auth = data[0].question
+
+				        	$("#list_hidden").val(reference_auth)
+				        	for(var i=1; i<=reference_auth; i++){
+				        		i = Number(i)
+				        		$("#index_ul").append("<li>"+i+"</li>");
+					        	$("#answer_list").append(
+			        				"<label>"+
+			    						"<input type='checkbox' name= auth_check"+i+" value='1' style='display: none;'> ①"+    				
+									"</label>"+    
+									"<label>"+
+										"<input type='checkbox' name= auth_check"+i+" value='2' style='display: none;'> ②"+
+									"</label>"+    
+									"<label>"+
+										"<input type='checkbox' name= auth_check"+i+" value='3' style='display: none;'> ③"+
+									"</label>"+    
+									"<label>"+
+										"<input type='checkbox' name= auth_check"+i+" value='4' style='display: none;'> ④"+
+									"</label>"+
+									"<label>"+
+										"<input type='checkbox' name= auth_check"+i+" value='5' style='display: none;'> ⑤"+
+			    					"</label>"+
+			    					"<br/>"
+								);	
+				        	}
+				        	$("input:checkbox").on('click', function() { 
+				    			if ( $(this).prop('checked') ) { 
+				    				$(this).parent().addClass("selected"); 
+				    			} else { 
+				    				$(this).parent().removeClass("selected"); 
+				    			}
+				    		});
+				        }
+			        })
+			        $("#floatMenu").append("<input type='button' value='저장1' class='write_btn' onclick='answer_save()'>");	
+			        // list의 첫번째 행의 코드를 가져 올수 있도록 개발 
+			        var chart_id = $(".tab-link:first-child")[0].id
+			        // console.log(chart_id)
+			        // 차트의 이름과 해당 코드를 가지고 데이터를 가져 올수 있도록 개발
+			        $.ajax({
+				        url:"/solve/chartPdf?chart_id=" +chart_id+"&name="+name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	console.log(data)
+				        	$("#sum_menu").append("<div id='left_pdf'><iframe id='left_file' src='/profile/"+data[0].chart_pdf+"' width='90%' height='100%'></iframe></div>");	
+				        }
+			        })
+				}
+        	})
+
+			$("#menu").on("click","li",function(){
+	        	var chart_id = ($(this).attr("id"))
+	        	// console.log(chart_id)
+	        	$.ajax({
+			        url:"/solve/chartPdf?chart_id=" + chart_id+"&name="+name,
+			        contentType:"application/json",
+			        method:"get",
+			        success:function(data){
+			        	console.log(data)
+			        	$("#left_pdf").remove();
+			        	$("#sum_menu").append("<div id='left_pdf'><iframe id='left_file' src='/profile/"+data[0].chart_pdf+"' width='90%' height='100%'></iframe></div>");
+
+			        }
+		        })
+	        })
+		})
+
+		$( window ).resize(function() {
+	        // console.log(widthSlider)
+	        var a = $(window).width()
+	        var widthSlider = $(window).width()-197
+	        $("#floatMenu").css("left",widthSlider)
+	    });
+		// 정답 제출
+		function answer_save(){
+			var list = $("#list_hidden").val()
+
+	    	var blank = "";
+	    	// 체크 박스 제어 
+	    	for(var i=1; i<=list; i++){
+		    	if($("input:checkbox[name=auth_check"+i+"]").is(":checked") !=  true){
+		    		alert(i+"번째 문항을 입력 하여주세요")
+		    		return false;
+		    	} else {
+				    $("input[name=auth_check"+i+"]:checked").each(function() {
+			    		test = $(this).val() + ",";
+			    		blank += test; 
+			    	})	
+			    	blank += "/"
+			    
+					last_text = blank.slice(0, blank.length-1)
+				}
+			}
+			var answer_data = last_text;
+	  		var answer_split = answer_data.split('/');
+
+	  		var second_ins = [];
+	  		for(var i=0; i < answer_split.length; i++){
+				var comma = answer_split[i].split(',');
+				var last_blank = comma.filter(Boolean) 
+				// console.log(bs)
+				second_ins.push(last_blank)
+
+			}
+
+			var tertiary_ins = ""
+			for(var q = 0; q < second_ins.length; q++){
+				tertiary_ins += second_ins[q] + "/"
+				
+			}
+			answer_fourth = tertiary_ins.slice(0, tertiary_ins.length-1)
+			// console.log(fourth)
+			
+			var pdf_name = $("#pdf_hidden").val()
+			// console.log(id)
+			var title = $("#title_hidden").val()
+
+			auth_answer = {"answer_fourth":answer_fourth,"pdf_name":pdf_name,"id":id, "title":title}
+
+			var result = confirm("제출을 하시겠습니까?")
+
+			if(result){
+				$.ajax({
+	                url:"/solve/auth_answer",
+	                contentType:"application/json",
+	                method:"post",
+	                data:JSON.stringify(auth_answer),
+	                success:function(data){
+	                	console.log(data)
+	                	if(data == true){
+	                		confirm("제출이 완료 되었습니다.")
+	            			location.href = "/solve/pro" 
+	                	}
+	               } 
+				})
+			} else {
+				return;
+			}
+		}
+		function list_num_save(){
+			var pdf_question_name = $("#pdf_question_hidden").val()
+			var value_name = $("#value_hidden").val()
+			var question = $("#question").val()
+			var title = $("#title_hidden").val()
+			
+			auth_question = {"pdf_question_name":pdf_question_name,"value_name":value_name, "question":question, "title":title}
+			// console.log(auth_question)
+			var result = confirm("문항을 저장 겠습니까?")
+			if(result){
+				$.ajax({
+	                url:"/solve/question",
+	                contentType:"application/json",
+	                method:"post",
+	                data:JSON.stringify(auth_question),
+	                success:function(data){
+	                	if(data == true){
+	                		confirm("저장 되었습니다.")
+	            			location.href = "/solve/pro_solve?value="+ value_name+"&chart_title="+title
+	                	}
+	               } 
+				})
+			} else {
+				return;
+			}
+			
+		}
+		function list_num_up(){
+			var pdf_question_name = $("#pdf_question_hidden").val()
+			var value_name = $("#value_hidden").val()
+			var question = $("#question").val()
+			var title = $("#title_hidden").val()
+			
+			auth_question = {"pdf_question_name":pdf_question_name,"value_name":value_name, "question":question, "title":title}
+			// console.log(auth_question)
+			var result = confirm("문항을 수정 겠습니까?")
+
+			if(result){
+				$.ajax({
+	                url:"/solve/que_update",
+	                contentType:"application/json",
+	                method:"post",
+	                data:JSON.stringify(auth_question),
+	                success:function(data){
+	                	if(data == true){
+	                		confirm("수정 되었습니다.")
+	            			location.href = "/solve/pro_solve?value="+ value_name+"&chart_title="+title 
+	                	}
+	               } 
+				})
+			} else {
+				return;
+			}
+			
+		}
+	</script>
+	<div style='width: 100%;'>
+		<div id='sum_menu' style="width: 50%; float: left;">
+			<ul id='menu'>
+			</ul>	
+		</div>
+		<div id='right_menu' style="width: 50%; float: left;">
+			
+		</div>
+	</div>
+
+	<div id="floatMenu">
+		<!-- pdf 저장 -->
+		<input type="hidden" value="" id="pdf_hidden">
+		<!-- <input type='button' value='저장1' class='write_btn' onclick='answer_save()'> -->
+		<div id='floatMenu_title' style='background-color: white; margin-bottom: 5px;'>
+			<p>답안 작성</p>	
+
+		</div>
+		<div id='list_menu'>
+			
+			<!-- <form name='allQuestion' id='allQuestion' method='POST' action='/solve/question'> -->
+				<!-- 교수일때만 사용  -->
+				<div>
+					<p>총 문항</p>
+					<input type='hidden' id= 'pdf_question_hidden' name='pdf_question_name'>
+					<!-- 현재 페이지의 환자 이름 히든값 -->
+					<input type='hidden' id= 'value_hidden' name='value_name' value=''>
+					<div id='que_zone'>
+						<input type='text' id='question' name='question' value="">
+						<!-- <input type='button' value='저장' id="list_num_save" onclick='list_num_save()'> -->
+					</div>
+				</div>
+			<!-- </form>		 -->
+			<!--  -->
+			<div id='index_list' style='float: left; text-align: center; margin-right: 5px;'>
+				<div>문항</div>
+				<input type='hidden' value='' id='list_hidden'>
+				<input type='hidden' value='' id='title_hidden'>
+					
+				<ul id='index_ul' style='list-style: none;'>
+				</ul>
+			</div>
+			<div  id='answer_list' style='float: left; background-color: white; width: 140px; text-align: center;'>
+				<div>답안</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

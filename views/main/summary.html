@@ -1,0 +1,38 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+</head>
+<body>
+	<script>
+		tt ="{{user_id}}"
+		console.log(tt)
+		bb = [];
+		$(function(){
+			$.ajax({
+				url:"/summary/test",
+				method:"get",
+				contentType:"application/json",
+				success:function(data){
+					for(var i =0; i<data.length; i++){
+						var id = data[i].professor_id
+						console.log(id)
+						bb.push(id)
+					}
+					if(bb.includes(tt) == true){
+						$("#aa").append("<h1>aa</h1>")
+					}
+				}
+			})
+		})
+	</script>
+	summary
+	{% if auth %}
+		<p>aaaa</p>
+	{% endif %}
+	<div id='aa'>
+		
+	</div>
+</body>
+</html>

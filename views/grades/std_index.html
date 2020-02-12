@@ -1,0 +1,100 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery.dataTables.js"></script>
+</head>
+<body>
+    <script>
+        $(function(){
+            var id = "{{user_id}}"
+
+             $.ajax({
+                url:"/grades/std_tableInfo?id="+ id,
+                contentType:"application/json",
+                method:"get",
+                success:function(data){
+                    var TableList = data
+                    // console.log(data)
+                    // var question = data[0].question;
+                    // var point = data[0].point;
+                    // var allPoint = point + "/" + question 
+                    for(var i = 0; i<TableList.length; i++){
+                        var row = TableList[i]
+                        var question = row.question;
+                        var point = row.point;
+                        var allPoint = point + "/" + question 
+                        if(row["point"]){
+                            row["totalPoint"] = allPoint;    
+                        }
+                    }
+                    
+                    
+                    table = $("#confirm_list").DataTable({
+                        "destroy":true,
+                        "ordering":false,
+                        "searching": false,
+                        "info": false,
+                        "scrollY": "598px",
+                        "scrollCollapse": true,
+                        "bLengthChange": false,
+                        "data": TableList,
+                        "paging": false,
+                        "columns":[
+                            {"data":"chart_seq"},
+                            {"data":"chart_name"},
+                            {"data":"chart_date"},
+                            {"data":"chart_title"},
+                            {"data":"totalPoint"},
+                        ]
+                    });
+                }
+            })
+            $("#confirm_list").on("click","tr",function(){
+                var data = table.row($(this)).data();
+                var confirm_title = data.chart_title
+                var row_id = data.chart_name;
+                var hidden_value = $("#hidden").val(row_id)
+                var value = $("#hidden").val()
+                console.log(value)
+                $.ajax({
+                    url:"/grades/checkInfo?confirm_title=" + confirm_title,
+                    contentType:"application/json",
+                    method:"get",
+                    success:function(data){
+                        var pdf_name = data[0].reference_pdf
+                        
+                        $.ajax({
+                            url:"/grades/secondary?pdf_name=" + pdf_name +"&id="+id,
+                            contentType:"application/json",
+                            method:"get",
+                            success:function(data){
+                                console.log(data[0].open)
+                                if(data[0].open == "0"){
+                                    alert("승인이 되지 않았습니다.")
+                                } else {
+                                    location.href = "/grades/std_total?value="+ value;
+                                }
+                            }
+                        })
+                    }
+                })
+            })
+         })
+    </script>
+    <input type="hidden" id="hidden" value="">
+	<table id="confirm_list" style="text-align: center;">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>이름</th>
+                <th>생년월일</th>
+                <th>진단명</th>
+                <th>제출날짜</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</body>
+</html>

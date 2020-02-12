@@ -1,0 +1,107 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/js/jquery.dataTables.js"></script>
+	<!-- <script type="text/javascript" src="/static/js/lib/jquery.dataTables.min.js"></script> -->
+</head>
+<body>
+	<script>
+		function goBack(){
+			window.history.back();
+		}
+		function goForward(){
+			window.history.forward();
+		}
+		$(function(){
+			var id = "{{user_id}}"
+
+			 $.ajax({
+		        url:"/chart/tableInfo",
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	
+		        	var TableList = data
+
+		        	table = $("#summaryTable").DataTable({
+				        "destroy":true,
+				        "ordering":false,
+				        "searching": false,
+				        "info": false,
+				        "scrollY": "598px",
+				        "scrollCollapse": true,
+				        "bLengthChange": false,
+				        "data": TableList,
+				        "paging": false,
+				        "columns":[
+					        {"data":"chart_seq"},
+					        {"data":"chart_name"},
+					        {"data":"chart_date"},
+					        {"data":"chart_dep"},
+					        {"data":"chart_title"},
+					        {"data":"chart_operation"}
+					    ]
+				    });
+	        	}
+        	})
+			$("#summaryTable").on("click","tr",function(){
+				var data = table.row($(this)).data();
+				var chart_title = data.chart_title
+				var row_id = data.chart_name;
+				var hidden_value = $("#hidden").val(row_id)
+				var value = $("#hidden").val()
+				
+				location.href = "/chart/summary?value="+ value;
+				// $.ajax({
+			 //        url:"/chart/checkInfo?chart_title=" + chart_title,
+			 //        contentType:"application/json",
+			 //        method:"get",
+			 //        success:function(data){
+			 //        	console.log(data)
+			 //        	var pdf_name = data[0].reference_pdf
+			 //        	if(pdf_name){
+				// 			$.ajax({
+				// 		        url:"/chart/secondary?pdf_name=" + pdf_name +"&id="+id,
+				// 		        contentType:"application/json",
+				// 		        method:"get",
+				// 		        success:function(data){
+				// 		        	if(data == ""){
+				// 		        		location.href = "/chart/summary?value="+ value;
+				// 		        	}
+				// 		        	 else {
+				// 		        		alert("이미 제출한 문제 입니다.")
+				// 		        	}
+				// 		        }
+				// 	        })
+			 //        	} else {
+				// 			alert("아직 문제를 등록하지 않았습니다.")
+			 //        	}
+			        	
+			 //        }
+			 //    })
+				
+        	});
+		})
+	</script>
+	<div>
+		<input type="button" value="뒤로가기" onclick="goBack()">
+		<input type="button" value="앞으로가기" onclick="goForward()">
+		<input type="hidden" id="hidden" value="">
+		<table id="summaryTable" style="text-align: center;">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>이름</th>
+                    <th>생년월일</th>
+                    <th>진료과</th>
+                    <th>진단명</th>
+                    <th>수술 및 처치명</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+	</div>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/static/js/scroll.js"></script>
+	<style>
+		*{
+			margin: 0px;
+			padding: 0px;
+		}
+		#menu{
+			list-style: none;
+		}
+		#menu{
+			width: 5%;
+		    float: left;
+		}
+		.tab-link{
+			border: 1px solid black;
+	    	margin-bottom: 10px;	
+		}
+		.write_btn{
+		    border: none;
+		    width: 100%;
+		    height: 54px;
+		    margin-top: 5px;
+		    cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+	<script>
+		var id = "{{user_id}}"
+		var auth = "{{auth}}"
+		// console.log(auth)
+		function goBack(){
+			window.history.back();
+		}
+		function goForward(){
+			window.history.forward();
+		}
+		$(function(){
+			widthSlider = $(window).width()-212
+			$("#floatMenu").css("left",widthSlider)
+			var name = "{{ name }}";
+			$("#value_hidden").val(name)
+			// aa = [];
+			
+			
+			$.ajax({
+		        url:"/chart/chartNameInfo?name=" + name,
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	
+		        	var reference_pdf = data[0].reference_pdf
+		        	$("#pdf_hidden").val(reference_pdf)
+		        	// console.log(reference_pdf)
+		        	$("#pdf_question_hidden").val(reference_pdf)
+
+		        	for(var i = 0; i<data.length; i++){
+		        		var code = data[i].code
+		        		var record_type = data[i].record_type 
+		        		$("#menu").append("<li id="+code+" class = tab-link>"+record_type+"</li>");
+		        	}
+		        	$("#right_menu").append("<div id='ss'><iframe id='aa' src='/static/img/pdf/"+reference_pdf+"' width='90%' height='100%'></iframe></div>");
+
+
+		        	// 해당 id를 이용하여 id 정보를 가져 오도록 개발
+		        	/*학생 일때*/
+		        	if(auth != 1){
+						$.ajax({
+					        url:"/chart/useridInfo?id=" + id,
+					        contentType:"application/json",
+					        method:"get",
+					        success:function(data){
+					        	var student_name = data[0].student_name
+					        	var student_num = data[0].student_num
+					        	$("#student_id").html(student_name)
+					        	$("#student_name").html(student_num)
+					        }
+				        })
+				        // 문제 문항 수
+				        $("#index_list").append(
+        						// "<div>문항</div>"+
+								"<input type='hidden' value='' id='list_hidden'>"
+								)
+				        $("#answer_list").append(
+								"<div style='margin-bottom: 1px;'>답안</div>	"
+			        			)
+
+						$.ajax({
+					        url:"/chart/answerInfo?reference_pdf=" + reference_pdf,
+					        contentType:"application/json",
+					        method:"get",
+					        success:function(data){
+					        	var reference_list = data[0].question
+
+					        	$("#list_hidden").val(reference_list)
+
+					        	for(var i=1; i<=reference_list; i++){
+					        		i = Number(i)
+					        		$("#index_ul").append("<li>"+i+"</li>");
+						        	$("#answer_list").append(
+				        				"<label>"+
+				    						"<input type='checkbox' name= a"+i+" value='1' style='display: none;'> ①"+    				
+										"</label>"+    
+										"<label>"+
+											"<input type='checkbox' name= a"+i+" value='2' style='display: none;'> ②"+
+										"</label>"+    
+										"<label>"+
+											"<input type='checkbox' name= a"+i+" value='3' style='display: none;'> ③"+
+										"</label>"+    
+										"<label>"+
+											"<input type='checkbox' name= a"+i+" value='4' style='display: none;'> ④"+
+										"</label>"+
+										"<label>"+
+											"<input type='checkbox' name= a"+i+" value='5' style='display: none;'> ⑤"+
+				    					"</label>"+
+				    					"<br/>"
+
+									);	
+					        	}
+
+					        	
+					        	
+
+					        	// 체크박스 클릭시 해당 체크박스 색상 변경 
+					        	$("input:checkbox").on('click', function() { 
+					    			if ( $(this).prop('checked') ) { 
+					    				$(this).parent().addClass("selected"); 
+					    			} else { 
+					    				$(this).parent().removeClass("selected"); 
+					    			}
+					    		});	
+					    	}
+			        	}) 
+					} else {
+						/*교수 일때*/
+					   	$.ajax({
+					        url:"/chart/answerInfo?reference_pdf=" + reference_pdf,
+					        contentType:"application/json",
+					        method:"get",
+					        success:function(data){
+								var reference_auth = data[0].question
+					        	$("#auth_list_hidden").val(reference_auth)
+					        	for(var i=1; i<=reference_auth; i++){
+					        		i = Number(i)
+					        		$("#index_ul").append("<li>"+i+"</li>");
+						        	$("#answer_list").append(
+				        				"<label>"+
+				    						"<input type='checkbox' name= auth_check"+i+" value='1' style='display: none;'> ①"+    				
+										"</label>"+    
+										"<label>"+
+											"<input type='checkbox' name= auth_check"+i+" value='2' style='display: none;'> ②"+
+										"</label>"+    
+										"<label>"+
+											"<input type='checkbox' name= auth_check"+i+" value='3' style='display: none;'> ③"+
+										"</label>"+    
+										"<label>"+
+											"<input type='checkbox' name= auth_check"+i+" value='4' style='display: none;'> ④"+
+										"</label>"+
+										"<label>"+
+											"<input type='checkbox' name= auth_check"+i+" value='5' style='display: none;'> ⑤"+
+				    					"</label>"+
+				    					"<br/>"
+									);	
+					        	}
+					        	$("input:checkbox").on('click', function() { 
+					    			if ( $(this).prop('checked') ) { 
+					    				$(this).parent().addClass("selected"); 
+					    			} else { 
+					    				$(this).parent().removeClass("selected"); 
+					    			}
+					    		});
+					        }
+				        })
+					}
+					// 답안 버튼 생성
+		        	if(auth != 1){
+		        		$("#floatMenu").append("<input type='button' value='답안 제출' class='write_btn' onclick='bb()'>");	
+		        	} else {
+		        		$("#floatMenu").append("<input type='button' value='저장1' class='write_btn' onclick='answer_save()'>");	 
+		        	}
+		         
+					
+		        	/***************************************************************************************************/
+		        	
+
+		        	var chart_id = $(".tab-link:first-child")[0].id
+		        	console.log(chart_id)
+
+		        	$.ajax({
+				        url:"/chart/chartPdf?chart_id=" +chart_id+"&name="+name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	// console.log(data)
+				        	$("#sum_menu").append("<div id='ss'><iframe id='aa' src='/static/img/"+data[0].chart_pdf+"' width='90%' height='100%'></iframe></div>");	
+				        }
+			        })
+		        }
+	        })
+
+	        $("#menu").on("click","li",function(){
+	        	var chart_id = ($(this).attr("id"))
+	        	// console.log(chart_id)
+	        	$.ajax({
+			        url:"/chart/chartPdf?chart_id=" + chart_id+"&name="+name,
+			        contentType:"application/json",
+			        method:"get",
+			        success:function(data){
+			        	$("#ss").remove();
+			        	$("#sum_menu").append("<div id='ss'><iframe id='aa' src='/static/img/"+data[0].chart_pdf+"' width='90%' height='100%'></iframe></div>");
+
+			        }
+		        })
+	        })
+	    })
+
+		$( window ).resize(function() {
+	        // console.log(widthSlider)
+	        var a = $(window).width()
+	        var widthSlider = $(window).width()-197
+	        $("#floatMenu").css("left",widthSlider)
+	        if(a < 1000){
+	        	$("#header_area").css("width",a)
+	        	$("#footer_area").css("width",a)
+	        }
+	    });
+
+	    function bb(){
+	    	var list = $("#list_hidden").val()
+
+	    	var blank = "";
+
+	    	for(var i=1; i<=list; i++){
+		    	if($("input:checkbox[name=a"+i+"]").is(":checked") !=  true){
+		    		alert(i+"번째 문항을 입력 하여주세요")
+		    		return false;
+		    	} else {
+				    
+				    	$("input[name=a"+i+"]:checked").each(function(){
+				    		test = $(this).val() + ",";
+				    		blank += test; 
+				    	})	
+				    	blank += "/"
+				    
+					last_text = blank.slice(0, blank.length-1)
+				    // console.log(last_text)
+				}
+			}
+			// console.log(last_text)
+	    	var answer_data = last_text;
+	  		var answer_split = answer_data.split('/');
+
+	  		var second_ins = [];
+	  		for(var i=0; i < answer_split.length; i++){
+				var comma = answer_split[i].split(',');
+				var last_blank = comma.filter(Boolean) 
+				// console.log(bs)
+				second_ins.push(last_blank)
+
+			}
+
+			var tertiary_ins = ""
+			for(var q = 0; q < second_ins.length; q++){
+				tertiary_ins += second_ins[q] + "/"
+				
+			}
+			fourth = tertiary_ins.slice(0, tertiary_ins.length-1)
+			// console.log(fourth)
+			
+			var pdf_name = $("#pdf_hidden").val()
+			// console.log(id)
+			data_answer = {"fourth":fourth,"pdf_name":pdf_name,"id":id}
+
+			var result = confirm("제출을 하시겠습니까?")
+			
+			if(result){
+				$.ajax({
+	                url:"/chart/sub_answer",
+	                contentType:"application/json",
+	                method:"post",
+	                data:JSON.stringify(data_answer),
+	                success:function(data){
+	                	
+	                	$.ajax({
+			                url:"/chart/first_confirm",
+			                contentType:"application/json",
+			                method:"post",
+			                data:JSON.stringify(data_answer),
+			                success:function(data){
+			                	first_arr = [];
+	                			two_arr = [];
+			                	var data_zero = data[0]
+			                	var data_one = data[1]
+			                	var first_data = data_zero[0].answer;
+			                	var two_data = data_one[0].answer;
+			                	var two_split = two_data.split('/');
+			                	var first_split = first_data.split('/');
+			                	
+			                	first_arr.push(first_split)
+			                	two_arr.push(two_split)
+			                	var first_child = first_arr[0]
+			                	var two_child = two_arr[0]
+			                	var result_child = [];
+								for (var i = 0; i < first_child.length; i++) {
+									if (two_child.indexOf(first_child[i]) === -1) {
+										result_child.push(first_child[i]);
+								    }
+							  	}
+							  	var minus_list = list
+							  	var minus_result = result_child.length
+							  	var minus = minus_list - minus_result
+
+							  	data_point = {"minus":minus,"pdf_name":pdf_name,"id":id}
+
+							  	$.ajax({
+					                url:"/chart/point",
+					                contentType:"application/json",
+					                method:"post",
+					                data:JSON.stringify(data_point),
+					                success:function(data){
+					                	if(data == true){
+					                		confirm("제출이 완료 되었습니다.")
+					            			location.href = "/chart" 
+					                	}
+					                }
+				                })
+							} 	
+		                })
+		            } 
+				})
+			} else {
+				return;
+			}
+		}
+
+		//교수일때 정답 저장
+		function answer_save(){
+			var list = $("#auth_list_hidden").val()
+			console.log(list)
+	    	var auth_blank = "";
+
+	    	for(var i=1; i<=list; i++){
+		    	if($("input:checkbox[name=auth_check"+i+"]").is(":checked") !=  true){
+		    		alert(i+"번째 문항을 입력 하여주세요")
+		    		return false;
+		    	} else {
+				    
+				    	$("input[name=auth_check"+i+"]:checked").each(function() {
+				    		answer_auth = $(this).val() + ",";
+				    		auth_blank += answer_auth; 
+				    	})	
+				    	auth_blank += "/"
+				    
+					last_text = auth_blank.slice(0, auth_blank.length-1)
+				    
+				}
+			}
+
+			var answer_data = last_text;
+	  		var answer_split = answer_data.split('/');
+	  		var second_ins = [];
+	  		for(var n=0; n < answer_split.length; n++){
+				var comma = answer_split[n].split(',');
+				var last_blank = comma.filter(Boolean) 
+				// console.log(bs)
+				second_ins.push(last_blank)
+			}
+			var tertiary_ins = ""
+			for(var q = 0; q < second_ins.length; q++){
+				tertiary_ins += second_ins[q] + "/"
+				
+			}
+			answer_fourth = tertiary_ins.slice(0, tertiary_ins.length-1)
+			
+			
+			var pdf_name = $("#pdf_hidden").val()
+			auth_answer = {"answer_fourth":answer_fourth,"pdf_name":pdf_name,"id":id}
+			// console.log(auth_answer)
+			var result = confirm("제출을 하시겠습니까?")
+			if(result){
+				$.ajax({
+	                url:"/chart/auth_answer",
+	                contentType:"application/json",
+	                method:"post",
+	                data:JSON.stringify(auth_answer),
+	                success:function(data){
+	                	console.log(data)
+	                	if(data == true){
+	                		confirm("제출이 완료 되었습니다.")
+	            			location.href = "/chart" 
+	                	}
+	               } 
+				})
+			} else {
+				return;
+			}
+		}
+	</script>
+	<style>
+		#floatMenu {
+			position: absolute;
+			height: auto;
+			top: 218px;
+			font-size: 20px;
+		   	z-index: 20;
+	        width: 185px;
+	        background-color: #bfbfbf;
+	        padding: 5px;
+		}
+		.selected{
+			color: tomato;
+		}
+	</style>
+	<input type="button" value="뒤로가기" onclick="goBack()">
+	<input type="button" value="앞으로가기" onclick="goForward()">
+	<div style='width: 100%;'>
+		<div id='sum_menu' style="width: 50%; float: left;">
+			<ul id='menu'>
+			</ul>	
+		</div>
+		<div id='right_menu' style="width: 50%; float: left;">
+			
+		</div>
+	</div>
+
+	<div id="floatMenu">
+		<input type="hidden" value="" id="pdf_hidden">
+		<div id='floatMenu_title' style='background-color: white; margin-bottom: 5px;'>
+			<script>
+				if(auth != 1){
+					$("#floatMenu_title").append(
+						"<p>학번:<span id='student_id'><span></p> <p>이름:<span id='student_name'><span></p>"
+					)
+				} else {
+					$("#floatMenu_title").append(
+						"<p>답안 작성</p>"
+					)
+				}
+			</script>
+			
+		</div>
+		<div id='list_menu'>
+			
+			<form name='allQuestion' id='allQuestion' method='POST' action='/chart/question'>
+				<!-- 교수일때만 사용  -->
+			<script>
+				if(auth == 1){
+					$("#allQuestion").append(
+						"<div>"+
+							"<p>총 문항</p>"+
+							"<input type='hidden' id= 'pdf_question_hidden' name='pdf_question_name' value=''>"+
+							"<input type='hidden' id= 'value_hidden' name='value_name' value=''>"+
+							"<div>"+
+								"<input type='text' id='all_Question' name='question'>"+
+								"<input type='submit' value='저장'>"+
+							"</div>"+
+						"</div>"	
+					)
+				}
+			</script>
+			</form>		
+			<!--  -->
+			<div id='index_list' style='float: left; text-align: center; margin-right: 5px;'>
+				<input type='hidden' value='' id='list_hidden'>
+				<input type='hidden' value='' id='auth_list_hidden'>
+				<script>
+					if(auth != 1){
+						$("#index_list").append(
+							"<div>문항</div>"
+						)
+						// "<div>문항</div>"+
+					}
+				</script>
+				<ul id='index_ul' style='list-style: none;'>
+				</ul>
+			</div>
+			<div  id='answer_list' style='float: left; background-color: white; width: 140px; text-align: center;'>
+				
+			</div>
+		</div>
+	</div>
+</body>
+</html>

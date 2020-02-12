@@ -1,0 +1,202 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="/css/jquery-ui.css">
+	<script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery.dataTables.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+    <style>
+        *{
+            padding: 0px;
+            margin: 0px;
+        }
+        a{
+            color: black;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+	<script>
+		var active_on = "<button id = 'on_btn'>on</button>"
+		var active_off = "<button id = 'off_btn'>off</button>"
+
+		var pdf_Y = "<p style='font-weight:700'>Y</p>"
+		var pdf_N = "<p style='color:tomato;font-weight:700'>N</p>"
+        $(function(){
+        	$.ajax({
+		        url:"/manager/tableInfo",
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	var TableList = data
+
+		        	for(var i = 0; i<TableList.length; i++){
+        				var row = TableList[i]
+
+        				if(row["reference_pdf"] == "" || row["reference_pdf"] == undefined){
+        					row["pdfStr"] = pdf_N;
+        				}
+        				if(row["reference_pdf"]){
+        					row["pdfStr"] = pdf_Y;
+        				}
+        				if(row["chart_open"] == 0){
+        					row["ActiveStr"] = active_off;
+        				}
+        				if(row["chart_open"] == 1){
+        					row["ActiveStr"] = active_on;
+        				}
+        			}
+		        	table = $("#proTable").DataTable({
+				        "destroy":true,
+				        "ordering":false,
+				        "searching": false,
+				        "info": false,
+				        "scrollY": "598px",
+				        "scrollCollapse": true,
+				        "bLengthChange": false,
+				        "data": TableList,
+				        "paging": false,
+				        "columns":[
+					        {"data":"chart_seq"},
+					        {"data":"chart_name"},
+					        {"data":"chart_date"},
+					        {"data":"chart_dep"},
+					        {"data":"chart_title"},
+					        {"data":"chart_operation"},
+					        {"data":"pdfStr"},
+					    ]
+				    });
+	        	}
+        	})
+            $("#proTable").on("click","tr",function(){
+                var data = table.row($(this)).data();
+                var chart_title = data.chart_title
+                var row_id = data.chart_name;
+                var chart_date = data.chart_date
+                var hidden_value = $("#hidden").val(row_id)
+                var value = $("#hidden").val()
+
+                location.href = "/manager/manager_upload?chart_title="+ chart_title;
+            })
+        })
+
+
+        function basic(){
+        	$("#basic_write").dialog({
+	            height:"auto",
+	            width:"600px",
+	            modal : true,
+	            buttons: {
+                    "btn1" : {
+                        text : "추가",
+                        id : "add_button",
+                        click:function(){
+                            var name = $("#name").val()
+                            var date = $("#date").val()
+                            var medicine = $("#medicine").val()
+                            var medical_name = $("#medical_name").val()
+                            var operation_name = $("#operation_name").val()
+
+                            if(name == ""){
+                                alert("이름을 입력하세요.")
+                                $("#name").focus();
+                                return false;   
+                            }
+                            if(date == ""){
+                                alert("생년월일을 입력하세요.")
+                                $("#date").focus();
+                                return false;   
+                            }
+                            if(medicine == ""){
+                                alert("진료과를 입력하세요.")
+                                $("#medicine").focus();
+                                return false;   
+                            }
+                            if(medical_name == ""){
+                                alert("진단명을 입력하세요.")
+                                $("#medical_name").focus();
+                                return false;   
+                            }
+                            if(operation_name == ""){
+                                alert("수술 및 처치명을 입력하세요.")
+                                $("#operation_name").focus();
+                                return false;   
+                            }
+
+                            data = {"name":name, "date":date, "medicine":medicine, "medical_name":medical_name, "operation_name":operation_name}
+                            
+                            $.ajax({
+                                url:"/manager/add_patient_info",
+                                contentType:"application/json",
+                                method:"post",
+                                data:JSON.stringify(data),
+                                success:function(data){
+                                    if(data){
+                                        alert("추가되었습니다.")
+                                    }else{
+                                        alert("실패하였습니다.")
+                                    }
+                                }
+                            })
+                            $( this ).dialog( "close" );
+                            location.href = "/manager"
+                        }
+                    }
+	        	}
+        	})
+        }
+    </script>
+    <div>
+        <div style='width: 46%; height: 50px; margin: 0 auto;'>
+            <a href="/manager" style='float: left; background-color: darkorange;'><div>환자요약차트</div></a>
+            <a href="#" style='float: left; margin-left: 10px;'><div>암등록차트</div></a>
+            <a href="#" style='float: left; margin-left: 10px;'><div>미비기록차트</div></a>
+            <a href="#" style='float: left; margin-left: 10px;'><div>건강보험청구차트</div></a>
+            <a href="#" style='float: left; margin-left: 10px;'><div>건강보험청구명세서</div></a>
+        </div>
+        <div>
+        	<input type="button" value="생년월일 생성" onclick="basic()">
+    		<input type="hidden" id="hidden" value="">
+    		<table id="proTable" style="text-align: center;">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>이름</th>
+                        <th>생년월일</th>
+                        <th>진료과</th>
+                        <th>진단명</th>
+                        <th>수술 및 처치명</th>
+                        <th>문제 둥록 여부</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+	</div>
+
+	<div id='basic_write' title='작성' style='display: none;'>
+		 <div id="patient_name">
+            <p>이름</p>
+            <input type="text" id = "name">
+        </div>
+        <div id="date_of_birth">
+            <p>생년월일</p>
+            <input type="text" id="date">
+        </div>
+        <div id="dep_medicine"'>
+            <p>진료과</p>
+            <input type="text" id="medicine">
+        </div>
+        <div id="medical"'>
+            <p>진단명</p>
+            <input type="text" id="medical_name">
+        </div>
+        <div id="operation"'>
+            <p>수술 및 처치명</p>
+            <input type="text" id="operation_name">
+        </div>
+	</div>
+</body>
+</html>			

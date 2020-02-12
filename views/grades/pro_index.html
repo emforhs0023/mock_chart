@@ -1,0 +1,106 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery.dataTables.js"></script>
+</head>
+<body>
+    <script>
+        $(function(){
+            var id = "{{user_id}}"
+            console.log(id)
+             $.ajax({
+                url:"/grades/pro_tableInfo?id="+ id,
+                contentType:"application/json",
+                method:"get",
+                success:function(data){
+                    
+                    var TableList = data
+                    
+                    // // console.log(data)
+                    // var question = data[0].question;
+                    // var point = data[0].point;
+                    // var allPoint = point + "/" + question 
+                    // for(var i = 0; i<TableList.length; i++){
+                    //     var row = TableList[i]
+                    //     var question = row.question;
+                    //     var point = row.point;
+                    //     var allPoint = point + "/" + question 
+                    //     if(row["point"]){
+                    //         row["totalPoint"] = allPoint;    
+                    //     }
+                    // }
+                    
+                    
+                    table = $("#pro_confirm").DataTable({
+                        "destroy":true,
+                        "ordering":false,
+                        "searching": false,
+                        "info": false,
+                        "scrollY": "598px",
+                        "scrollCollapse": true,
+                        "bLengthChange": false,
+                        "data": TableList,
+                        "paging": false,
+                        "columns":[
+                            {"data":"chart_seq"},
+                            {"data":"chart_name"},
+                            {"data":"chart_date"},
+                            {"data":"chart_title"},
+                            {"data":"count"},
+                        ]
+                    });
+                }
+            })
+            $("#pro_confirm").on("click","tr",function(){
+                var data = table.row($(this)).data();
+                var confirm_title = data.chart_title
+                var row_id = data.chart_name;
+                var count = data.count;
+                var hidden_value = $("#hidden").val(row_id)
+                var value = $("#hidden").val()
+                // console.log(value)
+                if(count > 0){
+                    location.href = "/grades/pro_total?confirm_title="+ confirm_title+"&value="+value;
+                }
+                // console.log(value)
+                // $.ajax({
+                //     url:"/grades/checkInfo?confirm_title=" + confirm_title,
+                //     contentType:"application/json",
+                //     method:"get",
+                //     success:function(data){
+                //         var pdf_name = data[0].reference_pdf
+                        
+                //         $.ajax({
+                //             url:"/grades/secondary?pdf_name=" + pdf_name +"&id="+id,
+                //             contentType:"application/json",
+                //             method:"get",
+                //             success:function(data){
+                //                 if(data == ""){
+                //                     alert("풀지 않은 답입니다.")
+                //                 } else {
+                //                     location.href = "/grades/std_total?value="+ value;
+                //                 }
+                //             }
+                //         })
+                //     }
+                // })
+            })
+         })
+    </script>
+    <input type="hidden" id="hidden" value="">
+	<table id="pro_confirm" style="text-align: center;">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>이름</th>
+                <th>생년월일</th>
+                <th>진단명</th>
+                <th>제출인원</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<title>index</title>
+	<style type="text/css">
+		/*login.css*/
+		* {
+			padding: 0px;
+			margin: 0px;
+		}
+		#content {
+			width: 100%;
+		}
+		#header {
+			width: 100%;
+			height: 150px;
+		}
+		#contents {
+			width: 1000px;
+			height: 500px;
+			margin: 0 auto;
+		}
+		#contents1 {
+			width: 500px;
+			height: 50px;
+			float: right;
+		}
+		.contents1_menu {
+			width: 140px;
+			height: 40px;
+			border: 1px solid gray;
+			background-color: #F2F2F2;
+			border-radius: 5px;
+			text-align: center;
+			line-height: 35px;
+			margin-right: 15px;
+			float: left;
+		}
+		#contents2 {
+			width: 500px;
+			float: left;
+		}
+		.contents2_menu {
+			width: 160px;
+			height: 160px;
+			border-radius: 50%;
+			background-color: #A4A4A4;
+			text-align: center;
+			margin-top: 30px;
+			margin-right: 15px;
+			margin-left: 15px;
+			float: left;
+		}
+		.contents2_img {
+			text-align: center;
+		}
+		#contents2_1 {
+			width: 400px;
+			height: 300px;
+		}
+		#contents_sub {
+			width: 150px;
+			height: 450px;
+			margin-left: 75px;
+			margin-right: 40px;
+			margin-top: 50px;
+			float: left;
+		}
+		#contents_sub_area {
+			display: none;
+		}
+		.contents_sub_menu1 {
+			width: 110px;
+			height: 40px;
+			text-align: center;
+			background-color: #A4A4A4;
+			border-radius: 5px;
+			margin-bottom: 20px;
+			padding-left: 10px;
+			padding-right: 10px;
+			line-height: 40px;
+		}
+		.contents_sub_menu2 {
+			width: 110px;
+			height: 40px;
+			text-align: center;
+			background-color: #A4A4A4;
+			border-radius: 5px;
+			margin-bottom: 20px;
+			padding-left: 10px;
+			padding-right: 10px;
+		}
+		#footer {
+			width: 100%;
+			height: 100px;
+		}
+		.menu-name {
+			color: white;
+			text-align: center;
+			padding-top: 15px;
+			font-size: 20px;
+		}
+		.sub-name {
+			text-align: center;
+			font-size: 20px;
+		}
+		.login-btn {
+			width: 250px;
+			height: 50px;
+			font-size: 20px;
+			font-weight: bold;
+		}
+		a {
+			text-decoration: none;
+			color: black;
+		}
+		a:hover {
+			text-decoration: none;
+		}
+	</style>
+	<script type="text/javascript">
+		var auth = "{{auth}}"
+		var manager = "{{manager}}"
+
+		$(function(){
+			if(auth == 1 && manager == 1){
+				$("#grades").append("<div class='contents2_menu' onclick='check_uplode()'>파일 업로드</div>")
+
+			} else if(auth == 1){
+				$("#grades").append("<div class='contents2_menu' onclick='grades_check()'>성적확인</div>")
+				$("#solve").append("<div class='contents2_menu' onclick='solve_check()'>정답 확인</div>")
+			} else {
+				$("#grades").append("<div class='contents2_menu' onclick='grades_lookup()'>성적조회</div>")
+				$("#solve").append("<div class='contents2_menu' onclick='solve_lookup()'>문제 풀이</div>")
+			}
+		})
+		function showSub() {
+			if($("#contents_sub_area").css("display") == "none"){
+				$('#contents_sub_area').css("display", "block");   
+			}else if($("#contents_sub_area").css("display") == "block"){
+				$('#contents_sub_area').css("display", "none");   
+			} else{
+				$('#contents_sub_area').css("display", "block");
+			}
+		}
+		function solve_check(){
+			$("#solve").attr("href","/solve/pro")
+		}
+		function grades_check(){
+			$("#grades").attr("href","/grades/pro")
+		}
+		function solve_lookup(){
+			$("#solve").attr("href","/solve/std")
+		}
+		function grades_lookup(){
+			$("#grades").attr("href","/grades/std")
+		}
+		function check_uplode(){
+			$("#grades").attr("href","/manager")
+		}
+		function goBack(){
+			window.history.back();
+		}
+		function goForward(){
+			window.history.forward();
+		}
+	
+	</script>
+</head>
+<body>
+	<div id="content">
+		<div id="header">
+		</div>
+
+		<div id="contents">
+			<div id="contents1">
+				<a href="#" onclick="login()"><li>logout</li></a>
+				<script type="text/javascript">
+					function login(){
+						var form = document.createElement("form");
+						form.action = "/login/logout";
+						form.method = "post";
+						document.body.appendChild(form);
+						form.submit();
+					}
+				</script>
+				<input type="button" value="뒤로가기" onclick="goBack()">
+				<input type="button" value="앞으로가기" onclick="goForward()">
+				<a href="#">
+					<div class="contents1_menu">Open EMR</div>
+				</a>
+				<a href="#">
+					<div class="contents1_menu">의학용어</div>
+				</a>
+				<a href="#">
+					<div class="contents1_menu">질환정보</div>
+				</a>
+			</div>
+			<div id="contents_sub">
+				<div id="contents_sub_area">
+					<a href="/chart"><div class="contents_sub_menu1">요약차트</div></a>
+					<div class="contents_sub_menu1">암등록차트</div>
+					<div class="contents_sub_menu1">미비기록차트</div>
+					<div class="contents_sub_menu2">건강보험청구차트</div>
+				</div>
+			</div>
+			<div id="contents2">
+				<div id="contents2_1">
+					<a href="" onclick="showSub(); return false">
+						<div class="contents2_menu">
+							<img src="chart.png" class="contents2_img"><p>차트</p>
+						</div>
+					</a>
+					<a href="" id="solve">
+						
+					</a>
+					<a href="" id='grades'>
+						
+					</a>
+					<a href="">
+						<div class="contents2_menu">질의응답</div>
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<div id="footer">
+		</div>
+	</div>
+</body>
+</html>

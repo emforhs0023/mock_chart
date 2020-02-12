@@ -1,0 +1,273 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/static/js/scroll.js"></script>
+	<style>
+		*{
+			margin: 0px;
+			padding: 0px;
+		}
+		#menu{
+			list-style: none;
+		}
+		#menu{
+			width: 5%;
+		    float: left;
+		}
+		.tab-link{
+			border: 1px solid black;
+	    	margin-bottom: 10px;	
+		}
+		.write_btn{
+		    border: none;
+		    width: 100%;
+		    height: 54px;
+		    margin-top: 5px;
+		    cursor: pointer;
+		}
+		#floatMenu {
+			position: absolute;
+			height: auto;
+			top: 218px;
+			font-size: 20px;
+		   	z-index: 20;
+	        width: 185px;
+	        background-color: #bfbfbf;
+	        padding: 5px;
+		}
+		.selected{
+			color: tomato;
+		}
+		.select{
+			color: blue !important;
+			font-weight: 700;	
+		}
+		.select2{
+			color: red;
+			font-weight: 700;		
+		}
+		.select23{
+			color: green;
+			font-weight: 700;			
+		}
+	</style>
+</head>
+<body>
+	<script>
+		var id = "{{user_id}}"
+		var auth = "{{auth}}"
+		var title = "{{title}}"
+		var stu_id = "{{id}}"
+
+		$(function(){
+			widthSlider = $(window).width()-212
+			$("#floatMenu").css("left",widthSlider)
+
+			$.ajax({
+		        url:"/grades/nameInfo?stu_id=" + stu_id + "&title=" + title,
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	var name = data[0].chart_name
+		        	$.ajax({
+				        url:"/grades/chartInfo?name=" + name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	var reference_pdf = data[0].reference_pdf
+				        	// pdf 저장
+				        	$("#pdf_hidden").val(reference_pdf)
+				        	$("#pdf_question_hidden").val(reference_pdf)
+				        	// 현재 환자의 병명 list로 전환 
+				        	for(var i = 0; i<data.length; i++){
+				        		var code = data[i].code
+				        		var record_type = data[i].record_type 
+				        		$("#menu").append("<li id="+code+" class = tab-link>"+record_type+"</li>");
+				        	}
+				        	$("#right_menu").append("<div id='right_pdf'><iframe id='right_file' src='/static/img/pdf/"+reference_pdf+"' width='90%' height='100%'></iframe></div>");
+
+				        	$.ajax({
+						        url:"/grades/answerInfo?reference_pdf=" + reference_pdf,
+						        contentType:"application/json",
+						        method:"get",
+						        success:function(data){
+						        	var reference_auth = data[0].question
+
+						        	$("#list_hidden").val(reference_auth)
+						        	for(var i=0; i<reference_auth; i++){
+						        		i = Number(i)
+						        		$("#index_ul").append("<li>"+(i+1)+"</li>");
+							        	$("#answer_list").append(
+					        				"<label>"+
+					    						"<input type='checkbox' name= auth_check"+i+" value='1' style='display: none;'> ①"+    				
+											"</label>"+    
+											"<label>"+
+												"<input type='checkbox' name= auth_check"+i+" value='2' style='display: none;'> ②"+
+											"</label>"+    
+											"<label>"+
+												"<input type='checkbox' name= auth_check"+i+" value='3' style='display: none;'> ③"+
+											"</label>"+    
+											"<label>"+
+												"<input type='checkbox' name= auth_check"+i+" value='4' style='display: none;'> ④"+
+											"</label>"+
+											"<label>"+
+												"<input type='checkbox' name= auth_check"+i+" value='5' style='display: none;'> ⑤"+
+					    					"</label>"+
+					    					"<br/>"
+										);	
+						        	}
+						      	}
+					        })
+					        var chart_id = $(".tab-link:first-child")[0].id
+					        $.ajax({
+						        url:"/grades/chartPdf?chart_id=" +chart_id+"&name="+name,
+						        contentType:"application/json",
+						        method:"get",
+						        success:function(data){
+						        	// console.log(data)
+						        	$("#sum_menu").append("<div id='left_pdf'><iframe id='left_file' src='/static/img/"+data[0].chart_pdf+"' width='90%' height='100%'></iframe></div>");	
+						        }
+					        })
+					        // 정답 확인
+					        $.ajax({
+						        url:"/grades/first_answer?reference_pdf=" +reference_pdf+"&stu_id="+stu_id,
+						        contentType:"application/json",
+						        method:"get",
+						        success:function(data){
+						        	
+						        	var data_zero = data[0];
+						        	var score_data = data_zero[0].answer;
+									var score_split = score_data.split('/');
+									var zero_arr = [];
+									
+									for(var i=0; i < score_split.length; i++){
+										var zero_split = score_split[i].split(',');
+										// console.log(tyu)
+										var zero_list = zero_split.filter(Boolean) 
+										// console.log(bs)
+										zero_arr.push(zero_list)
+									}
+									// console.log(zero_arr)
+									for (var idx in zero_arr) {
+										var ww = zero_arr[idx];
+										
+										for(var y=0; y <= ww.length; y++){
+											$("input[name=auth_check"+idx+"][value=" + ww[y] + "]").attr("checked", true)
+										}
+										$("input:checkbox[name=auth_check"+idx+"]").each(function() {
+											if ( $(this).is(':checked') ) { 
+							    				$(this).parent().addClass("select"); 
+							    			} else { 
+							    				$(this).parent().removeClass("select"); 
+							    			}
+							    		})
+									}
+									
+						        }
+					        })
+							$.ajax({
+						        url:"/grades/first_answer?reference_pdf=" +reference_pdf+"&stu_id="+stu_id,
+						        contentType:"application/json",
+						        method:"get",
+						        success:function(data){
+						        	var data_one = data[1];
+									// console.log(data_one[0])
+									var answer_data = data_one[0].answer;
+									var answer_split = answer_data.split('/');
+									var one_arr = [];
+									
+									for(var i=0; i < answer_split.length; i++){
+										var one_split = answer_split[i].split(',');
+										// console.log(tyu)
+										var one_list = one_split.filter(Boolean) 
+										// console.log(bs)
+										one_arr.push(one_list)
+									}
+									
+									for (var idxt in one_arr) {
+										var two_examine = one_arr[idxt];
+										for(var t=0; t <= two_examine.length; t++){
+											$("input[name=auth_check"+idxt+"][value=" + two_examine[t] + "]").attr("checked", true)
+										}
+										$("input:checkbox[name=auth_check"+idxt+"]").each(function() {
+											if ( $(this).is(':checked') ) {
+												$(this).parent().addClass("select2");
+							    			} else { 
+							    				$(this).parent().removeClass("select2"); 
+							    			}
+							    		})
+
+										// if($("label").hasClass("select select2")){
+										// 	$("label").removeClass("select");
+										// 	$("label").removeClass("select2");
+											
+										// }
+									}
+									console.log($('.select2 .select').length)
+						        }
+					        })
+				        }
+				    })
+				}
+
+		    })
+		    $("#menu").on("click","li",function(){
+	        	var chart_id = ($(this).attr("id"))
+	        	// console.log(chart_id)
+	        	$.ajax({
+			        url:"/grades/chartPdf?chart_id=" + chart_id+"&name="+name,
+			        contentType:"application/json",
+			        method:"get",
+			        success:function(data){
+			        	console.log(data)
+			        	$("#left_pdf").remove();
+			        	$("#sum_menu").append("<div id='left_pdf'><iframe id='left_file' src='/static/img/"+data[0].chart_pdf+"' width='90%' height='100%'></iframe></div>");
+					}
+		        })
+	        })    
+		})
+
+		$( window ).resize(function() {
+	        // console.log(widthSlider)
+	        var a = $(window).width()
+	        var widthSlider = $(window).width()-197
+	        $("#floatMenu").css("left",widthSlider)
+	    });	
+
+	</script>
+	<div style='width: 100%;'>
+		<div id='sum_menu' style="width: 50%; float: left;">
+			<ul id='menu'>
+			</ul>	
+		</div>
+		<div id='right_menu' style="width: 50%; float: left;">
+			
+		</div>
+	</div>
+
+	<div id="floatMenu">
+		<!-- pdf 저장 -->
+		<input type="hidden" value="" id="pdf_hidden">
+		<!-- <input type='button' value='저장1' class='write_btn' onclick='answer_save()'> -->
+		<div id='floatMenu_title' style='background-color: white; margin-bottom: 5px;'>
+			<p>답안 확인</p>	
+
+		</div>
+		<div id='list_menu'>
+			
+			<div id='index_list' style='float: left; text-align: center; margin-right: 5px;'>
+				<div>문항</div>
+				<input type='hidden' value='' id='list_hidden'>
+					
+				<ul id='index_ul' style='list-style: none;'>
+				</ul>
+			</div>
+			<div  id='answer_list' style='float: left; background-color: white; width: 140px; text-align: center;'>
+				<div>답안</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

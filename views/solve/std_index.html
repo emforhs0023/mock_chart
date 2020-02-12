@@ -1,0 +1,99 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/js/jquery.dataTables.js"></script>
+</head>
+<body>
+	<script>
+		$(function(){
+			var id = "{{user_id}}"
+
+			 $.ajax({
+		        url:"/solve/std_tableInfo",
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	var TableList = data
+
+		        	table = $("#stdTable").DataTable({
+				        "destroy":true,
+				        "ordering":false,
+				        "searching": false,
+				        "info": false,
+				        "scrollY": "598px",
+				        "scrollCollapse": true,
+				        "bLengthChange": false,
+				        "data": TableList,
+				        "paging": false,
+				        "columns":[
+					        {"data":"chart_seq"},
+					        {"data":"chart_name"},
+					        {"data":"chart_date"},
+					        {"data":"chart_dep"},
+					        {"data":"chart_title"},
+					        {"data":"chart_operation"},
+					    ]
+				    });
+	        	}
+        	})
+			
+			// 테이블 클릭시 데이터 넘길수 있도록 개발
+			$("#stdTable").on("click","tr",function(){
+				var data = table.row($(this)).data();
+				var chart_title = data.chart_title
+				var row_id = data.chart_name;
+				var hidden_value = $("#hidden").val(row_id)
+				var value = $("#hidden").val()
+
+				$.ajax({
+			        url:"/solve/checkInfo?chart_title=" + chart_title,
+			        contentType:"application/json",
+			        method:"get",
+			        success:function(data){
+			        	// console.log(data)
+			        	var pdf_name = data[0].reference_pdf
+			        	// console.log(pdf_name)
+			        	if(pdf_name){
+							$.ajax({
+						        url:"/solve/secondary?pdf_name=" + pdf_name +"&id="+id,
+						        contentType:"application/json",
+						        method:"get",
+						        success:function(data){
+						        	console.log(data)
+						        	if(data == ""){
+						        		location.href = "/solve/std_solve?value="+ value+"&chart_title="+chart_title
+						        	}
+						        	 else {
+						        		alert("이미 제출한 문제 입니다.")
+						        	}
+						        }
+					        })
+			        	} else {
+							alert("아직 문제를 등록하지 않았습니다.")
+			        	}
+			        	
+			        }
+			    })
+			})
+		 })
+	</script>
+	<div>
+		<input type="hidden" id="hidden" value="">
+		<table id="stdTable" style="text-align: center;">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>이름</th>
+                    <th>생년월일</th>
+                    <th>진료과</th>
+                    <th>진단명</th>
+                    <th>수술 및 처치명</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+	</div>
+</body>
+</html>

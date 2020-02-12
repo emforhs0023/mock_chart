@@ -1,0 +1,125 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/static/js/scroll.js"></script>
+	<style>
+		*{
+			margin: 0px;
+			padding: 0px;
+		}
+		#menu{
+			list-style: none;
+		}
+		#menu{
+			width: 5%;
+		    float: left;
+		}
+		.tab-link{
+			border: 1px solid black;
+	    	margin-bottom: 10px;	
+		}
+		.write_btn{
+		    border: none;
+		    width: 100%;
+		    height: 54px;
+		    margin-top: 5px;
+		    cursor: pointer;
+		}
+		#ss{
+		    margin: 0 auto;
+    		width: 750px;
+		}
+	</style>
+</head>
+<body>
+	<script>
+		var id = "{{user_id}}"
+		
+		$(function(){
+			var name = "{{ name }}";
+			$("#value_hidden").val(name)
+			
+			$.ajax({
+		        url:"/chart/chartNameInfo?name=" + name,
+		        contentType:"application/json",
+		        method:"get",
+		        success:function(data){
+		        	
+					for(var i = 0; i<data.length; i++){
+		        		var code = data[i].code
+		        		var record_type = data[i].record_type 
+		        		$("#menu").append("<li id="+code+" class = tab-link>"+record_type+"</li>");
+		        	}
+		        	
+					var chart_id = $(".tab-link:first-child")[0].id
+		        	console.log(chart_id)
+
+		        	$.ajax({
+				        url:"/chart/chartPdf?chart_id=" +chart_id+"&name="+name,
+				        contentType:"application/json",
+				        method:"get",
+				        success:function(data){
+				        	console.log(data)
+				        	$("#sum_menu").append("<div id='ss'><iframe id='aa' src='/profile/"+data[0].chart_pdf+"' width='90%' height='100%' align='middle'></iframe></div>");	
+				        }
+			        })
+		        }
+	        })
+
+	        $("#menu").on("click","li",function(){
+	        	var chart_id = ($(this).attr("id"))
+	        	// console.log(chart_id)
+	        	$.ajax({
+			        url:"/chart/chartPdf?chart_id=" + chart_id+"&name="+name,
+			        contentType:"application/json",
+			        method:"get",
+			        success:function(data){
+			        	$("#ss").remove();
+			        	$("#sum_menu").append("<div id='ss' align='center'><iframe id='aa' src='/profile/"+data[0].chart_pdf+"' width='90%' height='100%'></iframe></div>");
+
+			        }
+		        })
+	        })
+	    })
+
+		$( window ).resize(function() {
+	        // console.log(widthSlider)
+	        var a = $(window).width()
+	        var widthSlider = $(window).width()-197
+	        $("#floatMenu").css("left",widthSlider)
+	        if(a < 1000){
+	        	$("#header_area").css("width",a)
+	        	$("#footer_area").css("width",a)
+	        }
+	    });
+
+	   
+	</script>
+	<style>
+		#floatMenu {
+			position: absolute;
+			height: auto;
+			top: 218px;
+			font-size: 20px;
+		   	z-index: 20;
+	        width: 185px;
+	        background-color: #bfbfbf;
+	        padding: 5px;
+		}
+		.selected{
+			color: tomato;
+		}
+	</style>
+	
+	<div style='width: 100%;'>
+		<div id='sum_menu' style="width: 100%;">
+			<ul id='menu'>
+			</ul>	
+		</div>
+	</div>
+
+
+</body>
+</html>
